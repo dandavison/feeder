@@ -43,6 +43,49 @@ HTML_TABLE_PAGE_TEMPLATE = '''
 '''
 
 
+def read_feeds(urls):
+    feeds = []
+    now = datetime.now()
+
+    # Nobody can have a local time further forwards than this
+    now += timedelta(days=1)
+
+    time_window = timedelta(days=1.5)
+
+    print 'Fetching feeds...'
+    with futures.ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_url = {executor.submit(feedparser.parse, url): url
+                         for url in urls}
+
+    for future in futures.as_completed(future_to_url):
+        url = future_to_url[future]
+        if future.exception() is not None:
+            log('Error reading %r: %s' % (url, future.exception()))
+            continue
+
+        feed = future.result()
+        content = []
+        for entry in feed.entries:
+            try:
+                pub_time = datetime.fromtimestamp(time.mktime(entry.date_parsed))
+            except AttributeError:
+                log('No date_parsed attribute on entry')
+                continue
+            except:
+                log('Error reading entry date')
+                continue
+
+            assert pub_time < now
+            if now - pub_time < time_window:
+                content.extend(get_content(entry))
+            else:
+                log('entry too old')
+
+        feeds.append((url, content))
+
+    return feeds
+
+
 def digest_feeds(feeds, k, common_words):
     occur = defaultdict(list)
     for url, contents in feeds:
@@ -87,6 +130,44 @@ def write_output(occur, outfile, write_header=False):
     print 'Top %d word sets written to %s' % (N_MOST_COMMON, outfile)
 
 
+# Utils -------------------------------------------------
+
+def get_content(entry):
+
+    def get_value(citem):
+        if citem.type == 'text/html':
+            value = BeautifulSoup.BeautifulSoup(citem.value).text
+        else:
+            value = citem.value
+
+        if value.startswith('http://'):
+            return None
+
+        return value
+
+    values = []
+    try:
+        try:
+            content = entry.content
+        except AttributeError:
+            content = entry.summary_detail
+
+        for citem in content:
+            log('%s\t%s' % (citem.type, citem.value[0:100]))
+
+            value = get_value(citem)
+            if value:
+                values.append(value)
+            else:
+                log('discarding: %s' % citem.value[0:100])
+
+        return values
+
+    except AttributeError:
+        log('AttributeError: %s' % content.keys())
+        return []
+
+
 def make_html_table_row(*args):
     make_cell = lambda cell: '<td>%s</td>' % cell
     return '<tr>' + ''.join(map(make_cell, args)) + '</tr>'
@@ -124,85 +205,6 @@ def get_common_words():
 def parse(string):
     return filter(None,
                   map(utils.clean, utils.html_to_txt(string).split()))
-
-
-def read_feeds(urls):
-    feeds = []
-    now = datetime.now()
-
-    # Nobody can have a local time further forwards than this
-    now += timedelta(days=1)
-
-    time_window = timedelta(days=1.5)
-
-    print 'Fetching feeds...'
-    with futures.ThreadPoolExecutor(max_workers=5) as executor:
-        future_to_url = {executor.submit(feedparser.parse, url): url
-                         for url in urls}
-
-    for future in futures.as_completed(future_to_url):
-        url = future_to_url[future]
-        if future.exception() is not None:
-            log('Error reading %r: %s' % (url, future.exception()))
-            continue
-
-        feed = future.result()
-        content = []
-        for entry in feed.entries:
-            try:
-                pub_time = datetime.fromtimestamp(time.mktime(entry.date_parsed))
-            except AttributeError:
-                log('No date_parsed attribute on entry')
-                continue
-            except:
-                log('Error reading entry date')
-                continue
-
-            assert pub_time < now
-            if now - pub_time < time_window:
-                content.extend(get_content(entry))
-            else:
-                log('entry too old')
-
-        feeds.append((url, content))
-
-    return feeds
-
-
-def get_content(entry):
-
-    def get_value(citem):
-        if citem.type == 'text/html':
-            value = BeautifulSoup.BeautifulSoup(citem.value).text
-        else:
-            value = citem.value
-
-        if value.startswith('http://'):
-            return None
-
-        return value
-
-    values = []
-    try:
-        try:
-            content = entry.content
-        except AttributeError:
-            content = entry.summary_detail
-
-        for citem in content:
-            log('%s\t%s' % (citem.type, citem.value[0:100]))
-
-            value = get_value(citem)
-            if value:
-                values.append(value)
-            else:
-                log('discarding: %s' % citem.value[0:100])
-
-        return values
-
-    except AttributeError:
-        log('AttributeError: %s' % content.keys())
-        return []
 
 
 def validate_urls(raw_urls):
