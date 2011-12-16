@@ -76,8 +76,14 @@ def write_output(counts, write_header=False):
 
 def get_common_words():
     words = Word.file_reader('common_words/words.txt')
-    return [word.wordform for word in words
-            if word.rank <= COMMON_WORD_RANK]
+    with open('common_words/extra_words.txt') as fp:
+        extra_words = set(line.strip()
+                          for line in fp.readlines())
+
+    common_words =  set(word.wordform for word in words
+                         if word.rank <= COMMON_WORD_RANK)
+
+    return common_words | extra_words
 
 
 def parse(string):
