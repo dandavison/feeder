@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 from collections import Counter
 from argparse import ArgumentParser
@@ -34,11 +35,35 @@ def digest_feeds(feeds):
         except KeyError:
             log('Common word not encountered in feeds: %s' % word, indent=0)
 
+    return counts
+
+
+def write_output(counts):
+    outfile = 'wordcount.html'
+    fp = open(outfile, 'w')
+
+    fp.write('''
+    <html>
+      <body>
+        <table>
+          <thead>
+            <tr>
+              <th> Word </th>
+              <th> Count </th>
+            </tr>
+          </thead>
+          <tbody>
+    ''')
     for word, count in counts.most_common()[0:100]:
-        try:
-            print '%-20s\t%d' % (word, count)
-        except UnicodeEncodeError:
-            LOG_FP.write('<UnicodeEncodeError>...')
+        fp.write('<tr><td>%s</td><td>%d</td></tr>' % (word, count))
+
+    fp.write('</tbody>')
+    fp.write('</table>')
+    fp.write('</body>')
+    fp.write('</html>')
+
+    print 'Top 100 words written to %s' % outfile
+    os.system('open %s' % outfile)
 
 
 def get_common_words():
@@ -162,8 +187,6 @@ if __name__ == '__main__':
         urls = [line.strip() for line in fp.readlines()]
 
     urls = validate_urls(urls)
-
     feeds = read_feeds(urls)
-
-    content = digest_feeds(feeds)
-
+    counts = digest_feeds(feeds)
+    write_output(counts)
