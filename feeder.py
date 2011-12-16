@@ -127,11 +127,11 @@ def read_feeds(urls):
 
     time_window = timedelta(days=1.5)
 
+    print 'Fetching feeds...'
     with futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_url = {executor.submit(feedparser.parse, url): url
                          for url in urls}
 
-    print 'Fetching feeds...'
     for future in futures.as_completed(future_to_url):
         url = future_to_url[future]
         if future.exception() is not None:
