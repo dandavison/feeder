@@ -2,6 +2,7 @@
 
 import sys
 from collections import Counter
+from itertools import combinations
 from argparse import ArgumentParser
 from datetime import datetime, timedelta
 import time
@@ -20,19 +21,12 @@ COMMON_WORD_RANK = 500
 socket.setdefaulttimeout(5.0)
 
 
-def digest_feeds(feeds):
-    common_words = set(get_common_words())
-
+def digest_feeds(feeds, k, common_words):
     counts = Counter()
     for url, contents in feeds:
         for content in contents:
-            counts.update(parse(content))
-
-    for word in common_words:
-        try:
-            counts.pop(word)
-        except KeyError:
-            log('Common word not encountered in feeds: %s' % word, indent=0)
+            words = set(parse(content)) - common_words
+            counts.update(combinations(words, k))
 
     return counts
 
@@ -45,7 +39,7 @@ def write_output(counts, write_header=False):
         header = '''
           <thead>
             <tr>
-              <th> Word </th>
+              <th> Word Set </th>
               <th> Count </th>
             </tr>
           </thead>
@@ -58,18 +52,18 @@ def write_output(counts, write_header=False):
       <body>
         <table>
              %s
-          <tbody>
+             <tbody>
     ''' % header)
 
-    for word, count in counts.most_common()[0:100]:
-        fp.write('<tr><td>%s</td><td>%d</td></tr>' % (word, count))
+    for words, count in counts.most_common()[0:100]:
+        fp.write('<tr><td>%s</td><td>%d</td></tr>' % (' '.join(words), count))
 
     fp.write('</tbody>')
     fp.write('</table>')
     fp.write('</body>')
     fp.write('</html>')
 
-    print '\nTop 100 words written to %s' % outfile
+    print '\nTop 100 word sets written to %s' % outfile
 
 
 def get_common_words():
@@ -200,5 +194,7 @@ if __name__ == '__main__':
 
     urls = validate_urls(urls)
     feeds = read_feeds(urls)
-    counts = digest_feeds(feeds)
-    write_output(counts)
+    common_words = set(get_common_words())
+    for k in [2]:
+        counts = digest_feeds(feeds, k, common_words)
+        write_output(counts)
