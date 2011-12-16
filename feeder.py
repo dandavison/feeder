@@ -74,10 +74,15 @@ def write_output(occur, outfile, write_header=False):
         urlfile = 'urls/%s.html' % '-'.join(words)
         rows.append(make_html_table_row(
             ' '.join(words), make_link(urlfile , '%d' % count)))
-        write_urls(set(occur[words]), os.path.join(OUTDIR, urlfile))
 
-    with open(outfile, 'w') as fp:
-        fp.write(HTML_TABLE_PAGE_TEMPLATE % (NOW.ctime(), header, '\n'.join(rows)))
+        url_set = set(occur[words])
+        url_counts = Counter(occur[words])
+        url_rows = '\n'.join(make_html_table_row(make_link(url),
+                                                 '%d' % url_counts[url])
+                             for url in url_set)
+        write_table(url_rows, os.path.join(OUTDIR, urlfile))
+
+    write_table('\n'.join(rows), outfile, header=header)
 
     print 'Top %d word sets written to %s' % (N_MOST_COMMON, outfile)
 
@@ -94,10 +99,13 @@ def make_link(target, display=None):
 
 
 def write_urls(urls, urlfile):
-    header = ''
     rows = '\n'.join(make_html_table_row(make_link(url)) for url in urls)
 
-    with open(urlfile, 'w') as fp:
+    write_table(rows, urlfile)
+
+
+def write_table(rows, path, header=''):
+    with open(path, 'w') as fp:
         fp.write(HTML_TABLE_PAGE_TEMPLATE % (NOW.ctime(), header, rows))
 
 
