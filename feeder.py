@@ -21,7 +21,9 @@ from lib import utils
 OUTDIR = 'output'
 LOG_FP = open(os.path.join(OUTDIR, 'feeder.log'), 'w')
 COMMON_WORD_RANK = 500
+N_MOST_COMMON = 100
 NOW = datetime.now()
+socket.setdefaulttimeout(10.0)
 
 
 HTML_TABLE_PAGE_TEMPLATE = '''
@@ -40,8 +42,6 @@ HTML_TABLE_PAGE_TEMPLATE = '''
 <html>
 '''
 
-socket.setdefaulttimeout(5.0)
-
 
 def digest_feeds(feeds, k, common_words):
     occur = defaultdict(list)
@@ -54,7 +54,7 @@ def digest_feeds(feeds, k, common_words):
     return occur
 
 
-def write_output(counts, outfile, write_header=False):
+def write_output(occur, outfile, write_header=False):
     if write_header:
         header = '''
           <thead>
@@ -70,16 +70,16 @@ def write_output(counts, outfile, write_header=False):
     counts = sorted(((words, len(urls)) for words, urls in occur.iteritems()),
                     key=itemgetter(1), reverse=True)
     rows = []
-    for words, count in counts[0:100]:
+    for words, count in counts[0:N_MOST_COMMON]:
         urlfile = 'urls/%s.html' % '-'.join(words)
         rows.append(make_html_table_row(
             ' '.join(words), make_link(urlfile , '%d' % count)))
-        write_urls(occur[words], os.path.join(OUTDIR, urlfile))
+        write_urls(set(occur[words]), os.path.join(OUTDIR, urlfile))
 
     with open(outfile, 'w') as fp:
         fp.write(HTML_TABLE_PAGE_TEMPLATE % (NOW.ctime(), header, '\n'.join(rows)))
 
-    print 'Top 100 word sets written to %s' % outfile
+    print 'Top %d word sets written to %s' % (N_MOST_COMMON, outfile)
 
 
 def make_html_table_row(*args):
