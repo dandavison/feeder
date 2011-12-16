@@ -5,13 +5,47 @@ from collections import Counter
 from argparse import ArgumentParser
 from datetime import datetime, timedelta
 import time
-
+import socket
 import feedparser
 import BeautifulSoup
 
+from common_words import Word
+from lib import utils
 
-# log_fp = open('feeder.log', 'w')
-log_fp = sys.stderr
+
+LOG_FP = open('feeder.log', 'w')
+COMMON_WORD_RANK = 500
+
+socket.setdefaulttimeout(5.0)
+
+
+def digest_feeds(feeds):
+    common_words = set(get_common_words())
+
+    counts = Counter()
+    for url, contents in feeds:
+        for content in contents:
+            counts.update(parse(content))
+
+    for word in common_words:
+        try:
+            counts.pop(word)
+        except KeyError:
+            log('Common word not encountered in feeds: %s' % word, indent=0)
+
+    for word, count in counts.most_common()[0:100]:
+        print '%-20s\t%d' % (word, count)
+
+
+def get_common_words():
+    words = Word.file_reader('common_words/words.txt')
+    return [word.wordform for word in words
+            if word.rank <= COMMON_WORD_RANK]
+
+
+def parse(string):
+    return filter(None,
+                  map(utils.clean, utils.html_to_txt(string).split()))
 
 
 def read_feeds(urls):
@@ -68,7 +102,7 @@ def get_content(entry):
             if value:
                 values.append(value)
             else:
-                print >>sys.stderr, 'Discarding: %s' % citem.value[0:100]
+                log('discarding: %s' % citem.value[0:100])
 
         return values
 
@@ -83,14 +117,14 @@ def validate_urls(raw_urls):
         if not url:
             continue
         if not (url.startswith('www.') or url.startswith('http://')):
-            print >>sys.stderr, 'Bad URL on line %d: %s' % (num+1, url)
+            log('Bad URL on line %d: %s' % (num+1, url))
             continue
         urls.append(url)
 
     dups = (url for url, count in Counter(urls).iteritems()
             if count > 1)
     for url in dups:
-        print >>sys.stderr, 'Duplicated URL: %s' % url
+        log('Duplicated URL: %s' % url)
 
     urls = sorted(set(urls))
 
@@ -99,7 +133,7 @@ def validate_urls(raw_urls):
 
 
 def log(string, indent=1):
-    log_fp.write(
+    LOG_FP.write(
         ('\t' * indent) + string + '\n')
 
 
@@ -117,6 +151,5 @@ if __name__ == '__main__':
 
     feeds = read_feeds(urls)
 
-    import ipdb ; ipdb.set_trace()
     content = digest_feeds(feeds)
 
