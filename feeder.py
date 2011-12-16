@@ -2,7 +2,9 @@
 
 import sys
 from collections import Counter
+from collections import defaultdict
 from itertools import combinations
+from operator import itemgetter
 from argparse import ArgumentParser
 from datetime import datetime, timedelta
 import time
@@ -22,13 +24,14 @@ socket.setdefaulttimeout(5.0)
 
 
 def digest_feeds(feeds, k, common_words):
-    counts = Counter()
+    occur = defaultdict(list)
     for url, contents in feeds:
         for content in contents:
             words = set(parse(content)) - common_words
-            counts.update(combinations(words, k))
+            for combn in combinations(words, k):
+                occur[combn].append(url)
 
-    return counts
+    return occur
 
 
 def write_output(counts, write_header=False):
@@ -55,7 +58,9 @@ def write_output(counts, write_header=False):
              <tbody>
     ''' % header)
 
-    for words, count in counts.most_common()[0:100]:
+    counts = sorted(((combn, len(urls)) for combn, urls in occur.iteritems()),
+                    key=itemgetter(1), reverse=True)
+    for words, count in counts[0:100]:
         fp.write('<tr><td>%s</td><td>%d</td></tr>' % (' '.join(words), count))
 
     fp.write('</tbody>')
@@ -196,5 +201,5 @@ if __name__ == '__main__':
     feeds = read_feeds(urls)
     common_words = set(get_common_words())
     for k in [2]:
-        counts = digest_feeds(feeds, k, common_words)
-        write_output(counts)
+        occur = digest_feeds(feeds, k, common_words)
+        write_output(occur)
