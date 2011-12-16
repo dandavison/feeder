@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 import sys
 from collections import Counter
 from argparse import ArgumentParser
@@ -70,8 +69,7 @@ def write_output(counts, write_header=False):
     fp.write('</body>')
     fp.write('</html>')
 
-    print 'Top 100 words written to %s' % outfile
-    os.system('open %s' % outfile)
+    print '\nTop 100 words written to %s' % outfile
 
 
 def get_common_words():
