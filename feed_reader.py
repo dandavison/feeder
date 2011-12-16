@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from datetime import datetime, timedelta
 import time
 import socket
+
 import feedparser
 import BeautifulSoup
 
@@ -34,7 +35,10 @@ def digest_feeds(feeds):
             log('Common word not encountered in feeds: %s' % word, indent=0)
 
     for word, count in counts.most_common()[0:100]:
-        print '%-20s\t%d' % (word, count)
+        try:
+            print '%-20s\t%d' % (word, count)
+        except UnicodeEncodeError:
+            LOG_FP.write('<UnicodeEncodeError>...')
 
 
 def get_common_words():
@@ -63,7 +67,15 @@ def read_feeds(urls):
         feed = feedparser.parse(url)
         content = []
         for entry in feed.entries:
-            pub_time = datetime.fromtimestamp(time.mktime(entry.date_parsed))
+            try:
+                pub_time = datetime.fromtimestamp(time.mktime(entry.date_parsed))
+            except AttributeError:
+                log('No date_parsed attribute on entry')
+                continue
+            except:
+                log('Error reading entry date')
+                continue
+
             assert pub_time < now
             if now - pub_time < time_window:
                 content.extend(get_content(entry))
@@ -133,9 +145,11 @@ def validate_urls(raw_urls):
 
 
 def log(string, indent=1):
-    LOG_FP.write(
-        ('\t' * indent) + string + '\n')
-
+    try:
+        LOG_FP.write(
+            ('\t' * indent) + string + '\n')
+    except UnicodeEncodeError:
+        LOG_FP.write('<UnicodeEncodeError> during logging...')
 
 
 if __name__ == '__main__':
