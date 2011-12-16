@@ -235,8 +235,11 @@ if __name__ == '__main__':
     urls = validate_urls(urls)
     feeds = read_feeds(urls)
     common_words = set(get_common_words())
+    words_files = []
     for k in [2]:
-        outfile = os.path.join(OUTDIR, '%d-word.html' % k)
+        words_file = '%d-word.html' % k
+        words_files.append(words_file)
         occur = digest_feeds(feeds, k, common_words)
-        write_output(occur, outfile)
+        write_output(occur, os.path.join(OUTDIR, words_file))
 
+    write_urls(words_files, os.path.join(OUTDIR, 'index.html'))
