@@ -11,4 +11,7 @@
    - Create a plain text file containing RSS feed URLs, one per line
    - Say that file is called feeds.txt. Run feeder like this:
      ./feeder.py feeds.txt
+   - Output is created in a directory called 'output'. Open output/index.html in a browser.
+   - Previous output is deleted each time the program is run, so
+     either copy it or don't be attached to it.
     
