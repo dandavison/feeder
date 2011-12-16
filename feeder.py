@@ -38,22 +38,30 @@ def digest_feeds(feeds):
     return counts
 
 
-def write_output(counts):
+def write_output(counts, write_header=False):
     outfile = 'wordcount.html'
     fp = open(outfile, 'w')
 
-    fp.write('''
-    <html>
-      <body>
-        <table>
+    if write_header:
+        header = '''
           <thead>
             <tr>
               <th> Word </th>
               <th> Count </th>
             </tr>
           </thead>
+        '''
+    else:
+        header = ''
+
+    fp.write('''
+    <html>
+      <body>
+        <table>
+             %s
           <tbody>
-    ''')
+    ''' % header)
+
     for word, count in counts.most_common()[0:100]:
         fp.write('<tr><td>%s</td><td>%d</td></tr>' % (word, count))
 
