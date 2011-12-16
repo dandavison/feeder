@@ -1,3 +1,6 @@
+import re
+
+
 # http://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
 class memoized(object):
    """Decorator that caches a function's return value each time it is called.
@@ -25,6 +28,7 @@ class memoized(object):
       """Support instance methods."""
       return functools.partial(self.__call__, obj)
 
+
 @memoized
 def clean(word):
     internal_chars = set(["'", '-'])
@@ -47,3 +51,33 @@ def clean(word):
         # inclusion_regexp, exclusion_regexp
 
     return word
+
+
+def html_to_txt(html):
+    '''
+    Strip HTML tags, replace some specially encoded characters, etc,
+    and break it into a list of words.
+    '''
+
+    # txt = ''.join(BeautifulSoup(html).findAll(text=True))
+    txt = html
+
+    for dash in ('&ndash;', '&mdash;'):
+        txt = txt.replace(dash, ' - ')
+
+    for quot in ('&quot;',):
+        txt = txt.replace(quot, '"')
+
+    for single_quot in ('&#39;',):
+        txt = txt.replace(single_quot, "'")
+
+    for vowel in ('a', 'e', 'i', 'o', 'u', 'y'):
+        for mark in ('acute', 'grave', 'uml', 'circ'):
+            txt = txt.replace('&' + vowel + mark + ';', vowel)
+
+    for junk in ('</P>', '#8212;'):
+        txt = txt.replace(junk, ' ')
+
+    txt = re.sub('&[^;]+;', ' ', txt)
+
+    return txt
