@@ -95,8 +95,7 @@ def make_link(target, display=None):
 
 def write_urls(urls, urlfile):
     header = ''
-    rows = '\n'.join(map(make_html_table_row,
-                         *[[make_link(url)] for url in urls]))
+    rows = '\n'.join(make_html_table_row(make_link(url)) for url in urls)
 
     with open(urlfile, 'w') as fp:
         fp.write(HTML_TABLE_PAGE_TEMPLATE % (NOW.ctime(), header, rows))
