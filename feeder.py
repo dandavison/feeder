@@ -50,8 +50,6 @@ def digest_feeds(feeds, k, common_words):
 
 
 def write_output(counts, outfile, write_header=False):
-    fp = open(outfile, 'w')
-
     if write_header:
         header = '''
           <thead>
@@ -64,31 +62,18 @@ def write_output(counts, outfile, write_header=False):
     else:
         header = ''
 
-    fp.write('''
-    <html>
-      <body>
-        <table>
-             %s
-             <tbody>
-    ''' % header)
-
     counts = sorted(((words, len(urls)) for words, urls in occur.iteritems()),
                     key=itemgetter(1), reverse=True)
+    rows = []
     for words, count in counts[0:100]:
         urlfile = 'urls/%s.html' % '-'.join(words)
-        fp.write('<tr><td>%s</td><td>%s</td></tr>' % (
+        rows.append(make_html_table_row([
             ' '.join(words),
-            make_link(urlfile , '%d' % count)))
+            make_link(urlfile , '%d' % count)]))
+        write_urls(occur[words], os.path.join(OUTDIR, urlfile))
 
-
-        urls = occur[words]
-        write_urls(urls, os.path.join(OUTDIR, urlfile))
-
-    fp.write('</tbody>')
-    fp.write('</table>')
-    fp.write('</body>')
-    fp.write('</html>')
-    fp.close()
+    with open(outfile, 'w') as fp:
+        fp.write(HTML_TABLE_PAGE_TEMPLATE % (header, '\n'.join(rows)))
 
     print '\nTop 100 word sets written to %s' % outfile
 
@@ -97,6 +82,7 @@ def make_html_table_row(cells):
     make_cell = lambda cell: '<td>%s</td>' % cell
     return '<tr>' + ''.join(map(make_cell, cells)) + '</tr>'
 
+
 def make_link(target, display=None):
     if display is None:
         display = target
@@ -104,15 +90,12 @@ def make_link(target, display=None):
 
 
 def write_urls(urls, urlfile):
-    fp = open(urlfile, 'w')
-
     header = ''
     rows = '\n'.join(map(make_html_table_row,
                          [[make_link(url)] for url in urls]))
 
-    fp.write(HTML_TABLE_PAGE_TEMPLATE % (header, rows))
-
-    fp.close()
+    with open(urlfile, 'w') as fp:
+        fp.write(HTML_TABLE_PAGE_TEMPLATE % (header, rows))
 
 
 def get_common_words():
