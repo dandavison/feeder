@@ -12,6 +12,7 @@ import socket
 
 import feedparser
 import BeautifulSoup
+from concurrent import futures
 
 from common_words import Word
 from lib import utils
@@ -97,10 +98,18 @@ def read_feeds(urls):
 
     time_window = timedelta(days=1.5)
 
-    for url in urls:
+    with futures.ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_url = {executor.submit(feedparser.parse, url): url
+                         for url in urls}
+
+    for future in futures.as_completed(future_to_url):
+        url = future_to_url[future]
         print url
-        log(url, indent=0)
-        feed = feedparser.parse(url)
+        if future.exception() is not None:
+            log('Error reading %r: %s' % (url, future.exception()))
+            continue
+
+        feed = future.result()
         content = []
         for entry in feed.entries:
             try:
