@@ -118,11 +118,8 @@ def write_output(occur, outfile, write_header=False):
         rows.append(make_html_table_row(
             ' '.join(words), make_link(urlfile , '%d' % count)))
 
-        url_set = set(occur[words])
-        url_counts = Counter(occur[words])
-        url_rows = '\n'.join(make_html_table_row(make_link(url),
-                                                 '%d' % url_counts[url])
-                             for url in url_set)
+        url_rows = '\n'.join(make_html_table_row(make_link(url), '%d' % count)
+                             for url, count in Counter(occur[words]).most_common())
         write_table(url_rows, os.path.join(OUTDIR, urlfile))
 
     write_table('\n'.join(rows), outfile, header=header)
