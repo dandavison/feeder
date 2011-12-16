@@ -79,7 +79,7 @@ def write_output(counts, outfile, write_header=False):
     with open(outfile, 'w') as fp:
         fp.write(HTML_TABLE_PAGE_TEMPLATE % (NOW.ctime(), header, '\n'.join(rows)))
 
-    print '\nTop 100 word sets written to %s' % outfile
+    print 'Top 100 word sets written to %s' % outfile
 
 
 def make_html_table_row(*args):
@@ -132,9 +132,9 @@ def read_feeds(urls):
         future_to_url = {executor.submit(feedparser.parse, url): url
                          for url in urls}
 
+    print 'Fetching feeds...'
     for future in futures.as_completed(future_to_url):
         url = future_to_url[future]
-        print url
         if future.exception() is not None:
             log('Error reading %r: %s' % (url, future.exception()))
             continue
@@ -241,7 +241,8 @@ if __name__ == '__main__':
     feeds = read_feeds(urls)
     common_words = set(get_common_words())
     words_files = []
-    for k in [2]:
+    for k in [1, 2]:
+        print '\n%d-word analysis...' % k
         words_file = '%d-word.html' % k
         words_files.append(words_file)
         occur = digest_feeds(feeds, k, common_words)
