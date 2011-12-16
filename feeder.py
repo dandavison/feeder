@@ -19,12 +19,17 @@ from lib import utils
 
 
 OUTDIR = 'output'
-LOG_FP = open('feeder.log', 'w')
+LOG_FP = open(os.path.join(OUTDIR, 'feeder.log'), 'w')
 COMMON_WORD_RANK = 500
+NOW = datetime.now()
+
 
 HTML_TABLE_PAGE_TEMPLATE = '''
 <html>
   <body>
+    %s
+    <br>
+    <br>
     <table>
        %s
        <tbody>
@@ -67,20 +72,19 @@ def write_output(counts, outfile, write_header=False):
     rows = []
     for words, count in counts[0:100]:
         urlfile = 'urls/%s.html' % '-'.join(words)
-        rows.append(make_html_table_row([
-            ' '.join(words),
-            make_link(urlfile , '%d' % count)]))
+        rows.append(make_html_table_row(
+            ' '.join(words), make_link(urlfile , '%d' % count)))
         write_urls(occur[words], os.path.join(OUTDIR, urlfile))
 
     with open(outfile, 'w') as fp:
-        fp.write(HTML_TABLE_PAGE_TEMPLATE % (header, '\n'.join(rows)))
+        fp.write(HTML_TABLE_PAGE_TEMPLATE % (NOW.ctime(), header, '\n'.join(rows)))
 
     print '\nTop 100 word sets written to %s' % outfile
 
 
-def make_html_table_row(cells):
+def make_html_table_row(*args):
     make_cell = lambda cell: '<td>%s</td>' % cell
-    return '<tr>' + ''.join(map(make_cell, cells)) + '</tr>'
+    return '<tr>' + ''.join(map(make_cell, args)) + '</tr>'
 
 
 def make_link(target, display=None):
@@ -92,10 +96,10 @@ def make_link(target, display=None):
 def write_urls(urls, urlfile):
     header = ''
     rows = '\n'.join(map(make_html_table_row,
-                         [[make_link(url)] for url in urls]))
+                         *[[make_link(url)] for url in urls]))
 
     with open(urlfile, 'w') as fp:
-        fp.write(HTML_TABLE_PAGE_TEMPLATE % (header, rows))
+        fp.write(HTML_TABLE_PAGE_TEMPLATE % (NOW.ctime(), header, rows))
 
 
 def get_common_words():
@@ -228,6 +232,7 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('feed_file', help='File containing feed URLS, one per line')
     args = parser.parse_args()
+    os.system('find %s -type f -delete' % OUTDIR)
 
     with open(args.feed_file) as fp:
         urls = [line.strip() for line in fp.readlines()]
@@ -242,4 +247,5 @@ if __name__ == '__main__':
         occur = digest_feeds(feeds, k, common_words)
         write_output(occur, os.path.join(OUTDIR, words_file))
 
-    write_urls(words_files, os.path.join(OUTDIR, 'index.html'))
+    write_urls(words_files,
+               os.path.join(OUTDIR, 'index.html'))
