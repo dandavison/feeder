@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import os
 import sys
 from collections import Counter
 from collections import defaultdict
@@ -18,8 +18,22 @@ from common_words import Word
 from lib import utils
 
 
+OUTDIR = 'output'
 LOG_FP = open('feeder.log', 'w')
 COMMON_WORD_RANK = 500
+
+HTML_TABLE_PAGE_TEMPLATE = '''
+<html>
+  <body>
+    <table>
+       %s
+       <tbody>
+         %s
+       </tbody>
+    </table>
+  </body>
+<html>
+'''
 
 socket.setdefaulttimeout(5.0)
 
@@ -35,8 +49,7 @@ def digest_feeds(feeds, k, common_words):
     return occur
 
 
-def write_output(counts, write_header=False):
-    outfile = 'wordcount.html'
+def write_output(counts, outfile, write_header=False):
     fp = open(outfile, 'w')
 
     if write_header:
@@ -59,17 +72,47 @@ def write_output(counts, write_header=False):
              <tbody>
     ''' % header)
 
-    counts = sorted(((combn, len(urls)) for combn, urls in occur.iteritems()),
+    counts = sorted(((words, len(urls)) for words, urls in occur.iteritems()),
                     key=itemgetter(1), reverse=True)
     for words, count in counts[0:100]:
-        fp.write('<tr><td>%s</td><td>%d</td></tr>' % (' '.join(words), count))
+        urlfile = 'urls/%s.html' % '-'.join(words)
+        fp.write('<tr><td>%s</td><td>%s</td></tr>' % (
+            ' '.join(words),
+            make_link(urlfile , '%d' % count)))
+
+
+        urls = occur[words]
+        write_urls(urls, os.path.join(OUTDIR, urlfile))
 
     fp.write('</tbody>')
     fp.write('</table>')
     fp.write('</body>')
     fp.write('</html>')
+    fp.close()
 
     print '\nTop 100 word sets written to %s' % outfile
+
+
+def make_html_table_row(cells):
+    make_cell = lambda cell: '<td>%s</td>' % cell
+    return '<tr>' + ''.join(map(make_cell, cells)) + '</tr>'
+
+def make_link(target, display=None):
+    if display is None:
+        display = target
+    return '<a href=%s>%s</a>' % (target, display)
+
+
+def write_urls(urls, urlfile):
+    fp = open(urlfile, 'w')
+
+    header = ''
+    rows = '\n'.join(map(make_html_table_row,
+                         [[make_link(url)] for url in urls]))
+
+    fp.write(HTML_TABLE_PAGE_TEMPLATE % (header, rows))
+
+    fp.close()
 
 
 def get_common_words():
@@ -210,5 +253,7 @@ if __name__ == '__main__':
     feeds = read_feeds(urls)
     common_words = set(get_common_words())
     for k in [2]:
+        outfile = os.path.join(OUTDIR, '%d-word.html' % k)
         occur = digest_feeds(feeds, k, common_words)
-        write_output(occur)
+        write_output(occur, outfile)
+
