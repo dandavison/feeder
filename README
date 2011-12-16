@@ -1,0 +1,14 @@
+
+* feeder : an rss feed aggregator / summarizer
+
+** Dependencies
+   Run these commands to install required python libraries:
+   - pip install feedparser
+   - pip install BeautifulSoup
+   - pip install futures
+
+** Usage
+   - Create a plain text file containing RSS feed URLs, one per line
+   - Say that file is called feeds.txt. Run feeder like this:
+     ./feeder.py feeds.txt
+    
