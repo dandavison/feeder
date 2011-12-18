@@ -10,6 +10,7 @@ import argparse
 import socket
 from time import gmtime
 from datetime import timedelta
+import codecs
 
 import feedparser
 import BeautifulSoup
@@ -58,7 +59,7 @@ def read_feeds(urls, start, end):
             try:
                 assert pub_time - now < TIME_EPSILON
             except AssertionError:
-                print >>sys.stderr, 'Entry is from future? %s %s' % (pub_time - now, url)
+                print >>sys.stderr, 'Entry is from future? %s %s' % (pub_time, url)
 
             if start < pub_time < end:
                 content.extend(get_content(entry))
@@ -121,7 +122,7 @@ def write_output(occur, outfile, write_header=False):
         with open(os.path.join(OUTDIR, urlfile), 'w') as fp:
             fp.write(format_table_page(url_rows))
 
-    with open(outfile, 'w') as fp:
+    with codecs.open(outfile, 'w', 'utf-8') as fp:
         fp.write(format_table_page(rows, header=header))
 
     print 'Top %d word sets written to %s' % (N_MOST_COMMON, outfile)
@@ -236,9 +237,9 @@ if __name__ == '__main__':
 
     parser.add_argument('feed_file',
                         help='file containing feed URLS, one per line')
-    parser.add_argument('--start', type=int, default=24,
+    parser.add_argument('--start', type=float, default=24,
                         help='maximum age of feeds in hours (default: 24)')
-    parser.add_argument('--end', type=int, default=0,
+    parser.add_argument('--end', type=float, default=0,
                         help='minimum age of feeds in hours (default: 0)')
     parser.add_argument('--kmax', type=int, default=2,
                         help='maximum number of words in a combination (default: 2)')
@@ -263,7 +264,9 @@ if __name__ == '__main__':
         as_local_time(START_TIME),
         as_local_time(END_TIME))
     feeds = read_feeds(urls, START_TIME, END_TIME)
-    print 'Got %d feeds' % len(feeds)
+    print 'Got %d entries from %d feeds' % (
+        sum(len(feed[1]) for feed in feeds),
+        len(feeds))
 
     link_rows = []
     for k in range(1, args.kmax + 1):
