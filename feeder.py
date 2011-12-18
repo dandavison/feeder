@@ -4,6 +4,7 @@ import sys
 from collections import Counter
 from collections import defaultdict
 from itertools import combinations
+from itertools import chain
 from operator import itemgetter
 import argparse
 import socket
@@ -65,13 +66,27 @@ def read_feeds(urls, start, end):
     return feeds
 
 
-def digest_feeds(feeds, k, common_words):
+def _process_content(args):
+    url, content, k = args
     occur = defaultdict(list)
-    for url, contents in feeds:
-        for content in contents:
-            words = set(parse(content)) - common_words
-            for combn in combinations(words, k):
-                occur[combn].append(url)
+    words = set(parse(content)) - common_words
+    for combn in combinations(words, k):
+        occur[combn].append(url)
+
+    return occur
+
+
+def digest_feeds(feeds, k, common_words):
+
+    with futures.ProcessPoolExecutor() as executor:
+        occurs = executor.map(_process_content,
+                              [(url, content, k)
+                               for url, contents in feeds
+                               for content in contents])
+
+        occur = defaultdict(list)
+        for combn, urls in chain(*(o.items() for o in occurs)):
+            occur[combn].extend(urls)
 
     return occur
 
