@@ -110,7 +110,7 @@ def write_output(occur, outfile, write_header=False):
     for words, count in counts[0:N_MOST_COMMON]:
         urlfile = 'urls/%s.html' % '-'.join(words)
         rows.append((' '.join(words),
-                     make_link(urlfile , '%d' % count)))
+                     make_link(urlfile, '%d' % count)))
 
         url_rows = [(make_link(url), '%d' % count)
                     for url, count in Counter(occur[words]).most_common()]
@@ -165,8 +165,8 @@ def get_common_words():
         extra_words = set(line.strip()
                           for line in fp.readlines())
 
-    common_words =  set(word.wordform for word in words
-                         if word.rank <= COMMON_WORD_RANK)
+    common_words = set(word.wordform for word in words
+                       if word.rank <= COMMON_WORD_RANK)
 
     return common_words | extra_words
 
@@ -184,7 +184,7 @@ def validate_urls(raw_urls):
         if not url:
             continue
         if not (url.startswith('www.') or url.startswith('http://')):
-            log('Bad URL on line %d: %s' % (num+1, url))
+            log('Bad URL on line %d: %s' % (num + 1, url))
             continue
         urls.append(url)
 
@@ -194,7 +194,6 @@ def validate_urls(raw_urls):
         log('Duplicated URL: %s' % url)
 
     urls = sorted(set(urls))
-
 
     return urls
 
@@ -228,7 +227,8 @@ if __name__ == '__main__':
 ''',
         formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('feed_file', help='file containing feed URLS, one per line')
+    parser.add_argument('feed_file',
+                        help='file containing feed URLS, one per line')
     parser.add_argument('--start', type=int, default=24,
                         help='maximum age of feeds in hours (default: 24)')
     parser.add_argument('--end', type=int, default=0,
