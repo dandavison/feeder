@@ -5,7 +5,7 @@ from collections import Counter
 from collections import defaultdict
 from itertools import combinations
 from operator import itemgetter
-from argparse import ArgumentParser
+import argparse
 from datetime import datetime, timedelta
 import time
 import socket
@@ -235,8 +235,17 @@ def log(string, indent=1):
 
 if __name__ == '__main__':
 
-    parser = ArgumentParser()
-    parser.add_argument('feed_file', help='File containing feed URLS, one per line')
+    parser = argparse.ArgumentParser(
+        epilog='''examples:
+    ./feeder.py --start 12 my_feeds.txt
+    Summarize feeds published within the last 12 hours.
+
+    ./feeder.py --start 12 --end 6 my_feeds.txt
+    Summarize feeds published within the last 12 hours, but not more recently than 6 hours ago.
+''',
+        formatter_class=argparse.RawTextHelpFormatter)
+
+    parser.add_argument('feed_file', help='file containing feed URLS, one per line')
     args = parser.parse_args()
     os.system('find %s -type f -delete' % OUTDIR)
 
