@@ -55,7 +55,11 @@ def read_feeds(urls, start, end):
                 log('Error reading entry date')
                 continue
 
-            assert pub_time < now
+            try:
+                assert pub_time < now
+            except AssertionError:
+                print >>sys.stderr, 'Entry is from future?:\n %s\n%s' % (pub_time, entry)
+
             if start < pub_time < end:
                 content.extend(get_content(entry))
             else:
