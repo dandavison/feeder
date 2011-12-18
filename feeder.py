@@ -22,7 +22,8 @@ OUTDIR = 'output'
 LOG_FP = open(os.path.join(OUTDIR, 'feeder.log'), 'w')
 COMMON_WORD_RANK = 500
 N_MOST_COMMON = 100
-NOW = datetime.now()
+START_TIME = None
+END_TIME = None
 socket.setdefaulttimeout(10.0)
 
 
@@ -42,15 +43,8 @@ HTML_TABLE_PAGE_TEMPLATE = '''
 <html>
 '''
 
-
-def read_feeds(urls):
+def read_feeds(urls, start, end):
     feeds = []
-    now = datetime.now()
-
-    # Nobody can have a local time further forwards than this
-    now += timedelta(days=1)
-
-    time_window = timedelta(days=1.5)
 
     print 'Fetching feeds...'
     with futures.ThreadPoolExecutor(max_workers=5) as executor:
@@ -67,7 +61,7 @@ def read_feeds(urls):
         content = []
         for entry in feed.entries:
             try:
-                pub_time = datetime.fromtimestamp(time.mktime(entry.date_parsed))
+                pub_time = get_datetime(entry.date_parsed)
             except AttributeError:
                 log('No date_parsed attribute on entry')
                 continue
@@ -76,10 +70,10 @@ def read_feeds(urls):
                 continue
 
             assert pub_time < now
-            if now - pub_time < time_window:
+            if start < pub_time < end:
                 content.extend(get_content(entry))
             else:
-                log('entry too old')
+                log('Entry time outside window: %s' % pub_time)
 
         feeds.append((url, content))
 
@@ -184,7 +178,9 @@ def write_urls(urls, urlfile):
 
 def write_table(rows, path, header=''):
     with open(path, 'w') as fp:
-        fp.write(HTML_TABLE_PAGE_TEMPLATE % (NOW.ctime(), header, rows))
+        fp.write(HTML_TABLE_PAGE_TEMPLATE % (
+            '%s - %s' % (as_local_time(START_TIME), as_local_time(END_TIME)),
+            header, rows))
 
 
 def get_common_words():
@@ -225,12 +221,32 @@ def validate_urls(raw_urls):
     return urls
 
 
+def get_datetime(struct_time):
+    return datetime.fromtimestamp(time.mktime(struct_time))
+
+
+def as_local_time(datetime):
+    return datetime - timedelta(seconds=time.timezone)
+
+
 def log(string, indent=1):
     try:
         LOG_FP.write(
             ('\t' * indent) + string + '\n')
     except UnicodeEncodeError:
         LOG_FP.write('<UnicodeEncodeError> during logging...')
+
+
+def validate_args(args):
+    def die(last_words):
+        print >>sys.stderr, last_words
+        sys.exit(1)
+
+    try:
+        assert args.end < args.start
+    except AssertionError:
+        die('--end value must be less than --start value.'
+            ' (I got --start=%d and --end=%d)' % (args.start, args.end))
 
 
 if __name__ == '__main__':
@@ -246,14 +262,26 @@ if __name__ == '__main__':
         formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('feed_file', help='file containing feed URLS, one per line')
+    parser.add_argument('--start', type=int, default=24,
+                        help='maximum age of feeds in hours (default: 24)')
+    parser.add_argument('--end', type=int, default=0,
+                        help='minimum age of feeds in hours (default: 0)')
+
     args = parser.parse_args()
+    validate_args(args)
+
     os.system('find %s -type f -delete' % OUTDIR)
 
     with open(args.feed_file) as fp:
         urls = [line.strip() for line in fp.readlines()]
 
     urls = validate_urls(urls)
-    feeds = read_feeds(urls)
+
+    now = get_datetime(time.gmtime())
+    START_TIME = now - timedelta(hours=args.start)
+    END_TIME = now - timedelta(hours=args.end)
+
+    feeds = read_feeds(urls, START_TIME, END_TIME)
     common_words = set(get_common_words())
     words_files = []
     for k in [1, 2]:
