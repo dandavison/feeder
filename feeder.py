@@ -33,7 +33,6 @@ socket.setdefaulttimeout(10.0)
 def read_feeds(urls, start, end):
     feeds = []
 
-    print 'Fetching feeds...'
     with futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_url = {executor.submit(feedparser.parse, url): url
                          for url in urls}
@@ -59,7 +58,7 @@ def read_feeds(urls, start, end):
             try:
                 assert pub_time - now < TIME_EPSILON
             except AssertionError:
-                print >>sys.stderr, 'Entry is from future?:\n %s\n%s' % (pub_time, entry)
+                print >>sys.stderr, 'Entry is from future? %s %s' % (pub_time - now, url)
 
             if start < pub_time < end:
                 content.extend(get_content(entry))
@@ -254,13 +253,18 @@ if __name__ == '__main__':
         urls = [line.strip() for line in fp.readlines()]
 
     urls = validate_urls(urls)
+    common_words = set(get_common_words())
 
     now = get_datetime(gmtime())
     START_TIME = now - timedelta(hours=args.start)
     END_TIME = now - timedelta(hours=args.end)
 
+    print 'Fetching feeds between %s and %s...' % (
+        as_local_time(START_TIME),
+        as_local_time(END_TIME))
     feeds = read_feeds(urls, START_TIME, END_TIME)
-    common_words = set(get_common_words())
+    print 'Got %d feeds' % len(feeds)
+
     link_rows = []
     for k in range(1, args.kmax + 1):
         print '\n%d-word analysis...' % k
