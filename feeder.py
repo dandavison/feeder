@@ -26,6 +26,7 @@ COMMON_WORD_RANK = 500
 N_MOST_COMMON = 100
 START_TIME = None
 END_TIME = None
+TIME_EPSILON = timedelta(minutes=1)
 socket.setdefaulttimeout(10.0)
 
 
@@ -56,7 +57,7 @@ def read_feeds(urls, start, end):
                 continue
 
             try:
-                assert pub_time < now
+                assert pub_time - now < TIME_EPSILON
             except AssertionError:
                 print >>sys.stderr, 'Entry is from future?:\n %s\n%s' % (pub_time, entry)
 
