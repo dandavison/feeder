@@ -23,7 +23,7 @@ from utils.time_utils import get_datetime, as_local_time
 OUTDIR = 'output'
 LOG_FP = open(os.path.join(OUTDIR, 'feeder.log'), 'w')
 COMMON_WORD_RANK = 500
-N_MOST_COMMON = 100
+N_MOST_COMMON = 1000
 START_TIME = None
 END_TIME = None
 TIME_EPSILON = timedelta(minutes=1)
