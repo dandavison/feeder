@@ -15,7 +15,7 @@ import BeautifulSoup
 from concurrent import futures
 
 from common_words import Word
-from utils import parse, make_html_table_row, make_link
+from utils import parse, make_link
 from utils.time_utils import get_datetime, as_local_time
 
 
@@ -26,23 +26,6 @@ N_MOST_COMMON = 100
 START_TIME = None
 END_TIME = None
 socket.setdefaulttimeout(10.0)
-
-
-HTML_TABLE_PAGE_TEMPLATE = '''
-<html>
-  <body>
-    %s
-    <br>
-    <br>
-    <table>
-       %s
-       <tbody>
-         %s
-       </tbody>
-    </table>
-  </body>
-<html>
-'''
 
 
 def read_feeds(urls, start, end):
@@ -111,14 +94,16 @@ def write_output(occur, outfile, write_header=False):
     rows = []
     for words, count in counts[0:N_MOST_COMMON]:
         urlfile = 'urls/%s.html' % '-'.join(words)
-        rows.append(make_html_table_row(
-            ' '.join(words), make_link(urlfile , '%d' % count)))
+        rows.append((' '.join(words),
+                     make_link(urlfile , '%d' % count)))
 
-        url_rows = '\n'.join(make_html_table_row(make_link(url), '%d' % count)
-                             for url, count in Counter(occur[words]).most_common())
-        write_table(url_rows, os.path.join(OUTDIR, urlfile))
+        url_rows = [(make_link(url), '%d' % count)
+                    for url, count in Counter(occur[words]).most_common()]
+        with open(os.path.join(OUTDIR, urlfile), 'w') as fp:
+            fp.write(format_table_page(url_rows))
 
-    write_table('\n'.join(rows), outfile, header=header)
+    with open(outfile, 'w') as fp:
+        fp.write(format_table_page(rows, header=header))
 
     print 'Top %d word sets written to %s' % (N_MOST_COMMON, outfile)
 
@@ -171,16 +156,11 @@ def get_common_words():
     return common_words | extra_words
 
 
-def write_table(rows, path, header=''):
-    with open(path, 'w') as fp:
-        fp.write(HTML_TABLE_PAGE_TEMPLATE % (
-            '%s - %s' % (as_local_time(START_TIME), as_local_time(END_TIME)),
-            header, rows))
-
-
-def write_urls(urls, urlfile):
-    rows = '\n'.join(make_html_table_row(make_link(url)) for url in urls)
-    write_table(rows, urlfile)
+def format_table_page(*args, **kwargs):
+    import utils
+    preamble = utils.format_table([('Start:', as_local_time(START_TIME)),
+                                   ('End:', as_local_time(END_TIME))])
+    return utils.format_table_page(preamble, *args, **kwargs)
 
 
 def validate_urls(raw_urls):
@@ -255,13 +235,13 @@ if __name__ == '__main__':
 
     feeds = read_feeds(urls, START_TIME, END_TIME)
     common_words = set(get_common_words())
-    words_files = []
+    link_rows = []
     for k in [1, 2]:
         print '\n%d-word analysis...' % k
         words_file = '%d-word.html' % k
-        words_files.append(words_file)
+        link_rows.append((make_link(words_file),))
         occur = digest_feeds(feeds, k, common_words)
         write_output(occur, os.path.join(OUTDIR, words_file))
 
-    write_urls(words_files,
-               os.path.join(OUTDIR, 'index.html'))
+    with open(os.path.join(OUTDIR, 'index.html'), 'w') as fp:
+        fp.write(format_table_page(link_rows))

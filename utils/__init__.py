@@ -3,21 +3,32 @@ import sys
 from lib import utils
 
 
-HTML_TABLE_PAGE_TEMPLATE = '''
+def format_table_page(preamble, *args, **kwargs):
+    HTML_TABLE_PAGE_TEMPLATE = '''
 <html>
   <body>
     %s
     <br>
     <br>
+    %s
+  </body>
+</html>'''
+    return HTML_TABLE_PAGE_TEMPLATE % (
+        preamble, format_table(*args, **kwargs))
+
+
+def format_table(rows, header=''):
+    HTML_TABLE_TEMPLATE = '''
     <table>
        %s
        <tbody>
          %s
        </tbody>
-    </table>
-  </body>
-<html>
-'''
+    </table>'''
+    return HTML_TABLE_TEMPLATE % (
+        header,
+        '\n'.join(make_html_table_row(*row) for row in rows))
+
 
 def make_html_table_row(*args):
     make_cell = lambda cell: '<td>%s</td>' % cell
@@ -28,19 +39,6 @@ def make_link(target, display=None):
     if display is None:
         display = target
     return '<a href=%s>%s</a>' % (target, display)
-
-
-def write_urls(urls, urlfile):
-    rows = '\n'.join(make_html_table_row(make_link(url)) for url in urls)
-
-    write_table(rows, urlfile)
-
-
-def write_table(rows, path, header=''):
-    with open(path, 'w') as fp:
-        fp.write(HTML_TABLE_PAGE_TEMPLATE % (
-            '%s - %s' % (as_local_time(START_TIME), as_local_time(END_TIME)),
-            header, rows))
 
 
 def parse(string):
