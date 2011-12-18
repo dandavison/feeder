@@ -6,16 +6,17 @@ from collections import defaultdict
 from itertools import combinations
 from operator import itemgetter
 import argparse
-from datetime import datetime, timedelta
-import time
 import socket
+from time import gmtime
+from datetime import timedelta
 
 import feedparser
 import BeautifulSoup
 from concurrent import futures
 
 from common_words import Word
-from lib import utils
+from utils import parse, make_html_table_row, make_link
+from utils.time_utils import get_datetime, as_local_time
 
 
 OUTDIR = 'output'
@@ -42,6 +43,7 @@ HTML_TABLE_PAGE_TEMPLATE = '''
   </body>
 <html>
 '''
+
 
 def read_feeds(urls, start, end):
     feeds = []
@@ -121,8 +123,6 @@ def write_output(occur, outfile, write_header=False):
     print 'Top %d word sets written to %s' % (N_MOST_COMMON, outfile)
 
 
-# Utils -------------------------------------------------
-
 def get_content(entry):
 
     def get_value(citem):
@@ -159,30 +159,6 @@ def get_content(entry):
         return []
 
 
-def make_html_table_row(*args):
-    make_cell = lambda cell: '<td>%s</td>' % cell
-    return '<tr>' + ''.join(map(make_cell, args)) + '</tr>'
-
-
-def make_link(target, display=None):
-    if display is None:
-        display = target
-    return '<a href=%s>%s</a>' % (target, display)
-
-
-def write_urls(urls, urlfile):
-    rows = '\n'.join(make_html_table_row(make_link(url)) for url in urls)
-
-    write_table(rows, urlfile)
-
-
-def write_table(rows, path, header=''):
-    with open(path, 'w') as fp:
-        fp.write(HTML_TABLE_PAGE_TEMPLATE % (
-            '%s - %s' % (as_local_time(START_TIME), as_local_time(END_TIME)),
-            header, rows))
-
-
 def get_common_words():
     words = Word.file_reader('common_words/words.txt')
     with open('common_words/extra_words.txt') as fp:
@@ -195,9 +171,16 @@ def get_common_words():
     return common_words | extra_words
 
 
-def parse(string):
-    return filter(None,
-                  map(utils.clean, utils.html_to_txt(string).split()))
+def write_table(rows, path, header=''):
+    with open(path, 'w') as fp:
+        fp.write(HTML_TABLE_PAGE_TEMPLATE % (
+            '%s - %s' % (as_local_time(START_TIME), as_local_time(END_TIME)),
+            header, rows))
+
+
+def write_urls(urls, urlfile):
+    rows = '\n'.join(make_html_table_row(make_link(url)) for url in urls)
+    write_table(rows, urlfile)
 
 
 def validate_urls(raw_urls):
@@ -221,22 +204,6 @@ def validate_urls(raw_urls):
     return urls
 
 
-def get_datetime(struct_time):
-    return datetime.fromtimestamp(time.mktime(struct_time))
-
-
-def as_local_time(datetime):
-    return datetime - timedelta(seconds=time.timezone)
-
-
-def log(string, indent=1):
-    try:
-        LOG_FP.write(
-            ('\t' * indent) + string + '\n')
-    except UnicodeEncodeError:
-        LOG_FP.write('<UnicodeEncodeError> during logging...')
-
-
 def validate_args(args):
     def die(last_words):
         print >>sys.stderr, last_words
@@ -247,6 +214,11 @@ def validate_args(args):
     except AssertionError:
         die('--end value must be less than --start value.'
             ' (I got --start=%d and --end=%d)' % (args.start, args.end))
+
+
+def log(*args, **kwargs):
+    import utils
+    utils.log(*args, fp=LOG_FP, **kwargs)
 
 
 if __name__ == '__main__':
@@ -277,7 +249,7 @@ if __name__ == '__main__':
 
     urls = validate_urls(urls)
 
-    now = get_datetime(time.gmtime())
+    now = get_datetime(gmtime())
     START_TIME = now - timedelta(hours=args.start)
     END_TIME = now - timedelta(hours=args.end)
 
