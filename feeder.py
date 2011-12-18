@@ -224,6 +224,9 @@ if __name__ == '__main__':
 
     ./feeder.py --start 12 --end 6 my_feeds.txt
     Summarize feeds published within the last 12 hours, but not more recently than 6 hours ago.
+
+    ./feeder.py --kmax 3 my_feeds.txt
+    Do 3-word analysis, in addition to 1 and 2. (This command will use the default --start value of 24)
 ''',
         formatter_class=argparse.RawTextHelpFormatter)
 
@@ -233,6 +236,9 @@ if __name__ == '__main__':
                         help='maximum age of feeds in hours (default: 24)')
     parser.add_argument('--end', type=int, default=0,
                         help='minimum age of feeds in hours (default: 0)')
+    parser.add_argument('--kmax', type=int, default=2,
+                        help='maximum number of words in a combination (default: 2)')
+
 
     args = parser.parse_args()
     validate_args(args)
@@ -251,7 +257,7 @@ if __name__ == '__main__':
     feeds = read_feeds(urls, START_TIME, END_TIME)
     common_words = set(get_common_words())
     link_rows = []
-    for k in [1, 2]:
+    for k in range(1, args.kmax + 1):
         print '\n%d-word analysis...' % k
         words_file = '%d-word.html' % k
         link_rows.append((make_link(words_file),))
