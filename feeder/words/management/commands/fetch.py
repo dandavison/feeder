@@ -4,6 +4,7 @@ from datetime import timedelta
 import feedparser
 from concurrent import futures
 import BeautifulSoup
+from fish import ProgressFish
 
 from words.models import Feed, Entry, Item
 
@@ -19,6 +20,8 @@ def fetch(urls):
         future_to_url = {executor.submit(feedparser.parse, url): url
                          for url in urls}
 
+    fish = ProgressFish(total=len(urls))
+    i = 0
     for future in futures.as_completed(future_to_url):
         url = future_to_url[future]
         if future.exception() is not None:
@@ -46,6 +49,8 @@ def fetch(urls):
             for item in get_items(entry):
                 Item.objects.create(value=item, entry=_entry)
 
+        fish.animate(amount=i)
+        i += 1
 
 def get_items(entry):
 

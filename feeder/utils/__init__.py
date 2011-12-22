@@ -42,8 +42,13 @@ def make_link(target, display=None):
 
 
 def parse(string):
-    return filter(None,
+    ans = filter(None,
                   map(utils.clean, utils.html_to_txt(string).split()))
+
+    if 'inmedicaidreimbursements' in ans:
+
+        import ipdb ; ipdb.set_trace()
+    return ans
 
 
 def log(string, indent=1, fp=sys.stderr):
