@@ -19,4 +19,4 @@ class Feed(models.Model):
 class Combination(models.Model):
     length = models.IntegerField()
     text = models.TextField()
-    items = models.ManyToManyField('Item')
+    items = models.ManyToManyField('Item', related_name='combinations')

@@ -88,4 +88,5 @@ if __name__ == '__main__':
     with open(sys.argv[1]) as fp:
         urls = [line.strip() for line in fp.readlines()]
 
+    Feed.objects.all().delete()
     fetch(urls)

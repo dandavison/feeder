@@ -24,15 +24,21 @@ def digest_feeds(k, common_words):
     for i, item in enumerate(items):
         words = set(parse(item.value)) - common_words
         combns = []
-        for wordset in combinations(words, k):
+        for wordset in set(combinations(words, k)):
             text = ' '.join(wordset)
-            texts.add(text)
-            combn, created = Combination.objects.get_or_create(length=k, text=text)
-            combn.items.add(item)
-            combn.save()
+            kwargs = {'length': k, 'text': text}
+            if text in texts:
+                combn = Combination.objects.get(**kwargs)
+            else:
+                texts.add(text)
+                combn = Combination.objects.create(**kwargs)
+            item.combinations.add(combn)
 
         fish.animate(amount=i)
 
+        item.save()
+
 
 if __name__ == '__main__':
+    Combination.objects.all().delete()
     analyze(kmax=2)
