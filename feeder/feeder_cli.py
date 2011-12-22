@@ -11,10 +11,6 @@ from time import gmtime
 from datetime import timedelta
 import codecs
 
-import feedparser
-import BeautifulSoup
-from concurrent import futures
-
 from common_words import Word
 from utils import parse, make_link
 from utils.time_utils import get_datetime, as_local_time
@@ -29,46 +25,6 @@ START_TIME = None
 END_TIME = None
 TIME_EPSILON = timedelta(minutes=1)
 socket.setdefaulttimeout(10.0)
-
-
-def read_feeds(urls, start, end, db=False):
-    feeds = []
-
-    with futures.ThreadPoolExecutor(max_workers=5) as executor:
-        future_to_url = {executor.submit(feedparser.parse, url): url
-                         for url in urls}
-
-    for future in futures.as_completed(future_to_url):
-        url = future_to_url[future]
-        if future.exception() is not None:
-            log('Error reading %r: %s' % (url, future.exception()))
-            continue
-
-        feed = future.result()
-        content = []
-        for entry in feed.entries:
-            try:
-                pub_time = get_datetime(entry.date_parsed)
-            except AttributeError:
-                log('No date_parsed attribute on entry')
-                continue
-            except:
-                log('Error reading entry date')
-                continue
-
-            try:
-                assert pub_time - NOW < TIME_EPSILON
-            except AssertionError:
-                print >>sys.stderr, 'Entry is from future? %s %s' % (pub_time, url)
-
-            if start < pub_time < end:
-                content.extend(get_content(entry))
-            else:
-                log('Entry time outside window: %s' % pub_time)
-
-        feeds.append((url, content))
-
-    return feeds
 
 
 def digest_feeds(feeds, k, common_words):
@@ -112,42 +68,6 @@ def write_output(occur, outfile, write_header=False):
         fp.write(format_table_page(rows, header=header))
 
     print 'Top %d word sets written to %s' % (N_MOST_COMMON, outfile)
-
-
-def get_content(entry):
-
-    def get_value(citem):
-        if citem.type == 'text/html':
-            value = BeautifulSoup.BeautifulSoup(citem.value).text
-        else:
-            value = citem.value
-
-        if value.startswith('http://'):
-            return None
-
-        return value
-
-    values = []
-    try:
-        try:
-            content = entry.content
-        except AttributeError:
-            content = entry.summary_detail
-
-        for citem in content:
-            log('%s\t%s' % (citem.type, citem.value[0:100]))
-
-            value = get_value(citem)
-            if value:
-                values.append(value)
-            else:
-                log('discarding: %s' % citem.value[0:100])
-
-        return values
-
-    except AttributeError:
-        log('AttributeError: %s' % content.keys())
-        return []
 
 
 def get_common_words():
