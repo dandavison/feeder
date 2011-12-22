@@ -16,4 +16,7 @@ class Feed(models.Model):
     url = models.URLField()
 
 
-
+class Combination(models.Model):
+    length = models.IntegerField()
+    text = models.TextField()
+    items = models.ManyToManyField('Item')

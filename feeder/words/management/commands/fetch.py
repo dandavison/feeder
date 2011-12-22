@@ -1,4 +1,5 @@
 import sys
+from datetime import timedelta
 
 import feedparser
 from concurrent import futures
@@ -6,10 +7,14 @@ import BeautifulSoup
 
 from words.models import Feed, Entry, Item
 
-from feeder_cli import log
+from feeder_cli import get_datetime, gmtime, log
+
+
+TIME_EPSILON = timedelta(minutes=1)
 
 
 def fetch(urls):
+    now = get_datetime(gmtime())
     with futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_url = {executor.submit(feedparser.parse, url): url
                          for url in urls}
@@ -22,7 +27,6 @@ def fetch(urls):
 
         feed = future.result()
         _feed = Feed.objects.create(url=url)
-
         for entry in feed.entries:
             try:
                 pub_time = get_datetime(entry.date_parsed)
@@ -34,13 +38,14 @@ def fetch(urls):
                 continue
 
             try:
-                assert pub_time - NOW < TIME_EPSILON
+                assert pub_time - now < TIME_EPSILON
             except AssertionError:
                 print >>sys.stderr, 'Entry is from future? %s %s' % (pub_time, url)
 
             _entry = Entry.objects.create(feed=_feed, pub_time=pub_time)
             for item in get_items(entry):
-                Item.create(value=item, entry=_entry)
+                print '.',
+                Item.objects.create(value=item, entry=_entry)
 
 
 def get_items(entry):

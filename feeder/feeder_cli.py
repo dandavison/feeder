@@ -23,19 +23,7 @@ N_MOST_COMMON = 1000
 NOW = None
 START_TIME = None
 END_TIME = None
-TIME_EPSILON = timedelta(minutes=1)
 socket.setdefaulttimeout(10.0)
-
-
-def digest_feeds(feeds, k, common_words):
-    occur = defaultdict(list)
-    for url, contents in feeds:
-        for content in contents:
-            words = set(parse(content)) - common_words
-            for combn in combinations(words, k):
-                occur[combn].append(url)
-
-    return occur
 
 
 def write_output(occur, outfile, write_header=False):
@@ -164,7 +152,6 @@ def main(feed_file, start, end, kmax, outdir):
         urls = [line.strip() for line in fp.readlines()]
 
     urls = validate_urls(urls)
-    common_words = set(get_common_words())
 
     global NOW, START_TIME, END_TIME
     NOW = get_datetime(gmtime())
@@ -180,16 +167,3 @@ def main(feed_file, start, end, kmax, outdir):
         len(feeds))
 
     analyze(feeds, kmax, common_words, outdir)
-
-
-def analyze(feeds, kmax, common_words, outdir):
-    link_rows = []
-    for k in range(1, kmax + 1):
-        print '\n%d-word analysis...' % k
-        words_file = '%d-word.html' % k
-        link_rows.append((make_link(words_file),))
-        occur = digest_feeds(feeds, k, common_words)
-        write_output(occur, os.path.join(outdir, words_file))
-
-    with open(os.path.join(OUTDIR, 'index.html'), 'w') as fp:
-        fp.write(format_table_page(link_rows))
