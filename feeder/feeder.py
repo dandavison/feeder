@@ -253,8 +253,12 @@ if __name__ == '__main__':
         sum(len(feed[1]) for feed in feeds),
         len(feeds))
 
+    analyze(feeds, args.kmax)
+
+
+def analyze(feeds, kmax):
     link_rows = []
-    for k in range(1, args.kmax + 1):
+    for k in range(1, kmax + 1):
         print '\n%d-word analysis...' % k
         words_file = '%d-word.html' % k
         link_rows.append((make_link(words_file),))
