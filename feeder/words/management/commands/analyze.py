@@ -1,6 +1,8 @@
 import sys
 from itertools import combinations
 
+from fish import ProgressFish
+
 from words.models import Item, Combination
 
 from feeder_cli import get_common_words, parse, log
@@ -16,12 +18,20 @@ def analyze(kmax):
 
 
 def digest_feeds(k, common_words):
-    for item in Item.objects.all():
+    items = Item.objects.all()
+    fish = ProgressFish(total=len(items))
+    texts = set()
+    for i, item in enumerate(items):
         words = set(parse(item.value)) - common_words
+        combns = []
         for wordset in combinations(words, k):
-            combn, created = Combination.objects.get_or_create(length=k, text=' '.join(wordset))
+            text = ' '.join(wordset)
+            texts.add(text)
+            combn, created = Combination.objects.get_or_create(length=k, text=text)
             combn.items.add(item)
             combn.save()
+
+        fish.animate(amount=i)
 
 
 if __name__ == '__main__':

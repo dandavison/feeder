@@ -44,7 +44,6 @@ def fetch(urls):
 
             _entry = Entry.objects.create(feed=_feed, pub_time=pub_time)
             for item in get_items(entry):
-                print '.',
                 Item.objects.create(value=item, entry=_entry)
 
 
