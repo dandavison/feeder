@@ -19,19 +19,27 @@ def analyze(kmax):
 
 def digest_feeds(k, common_words):
     items = Item.objects.all()
+
+    wordsets = set(wordset
+                   for value in set(item.value for item in items)
+                   for wordset in combinations(set(parse(value)) - common_words, k))
+
+    combns = []
+    fish = ProgressFish(total=len(wordsets))
+    for i, wordset in enumerate(wordsets):
+        text = ' '.join(wordset)
+        combns.append(Combination.objects.create(length=k, text=text))
+        fish.animate(amount=i)
+
+
     fish = ProgressFish(total=len(items))
-    texts = set()
     for i, item in enumerate(items):
         words = set(parse(item.value)) - common_words
         combns = []
         for wordset in set(combinations(words, k)):
             text = ' '.join(wordset)
             kwargs = {'length': k, 'text': text}
-            if text in texts:
-                combn = Combination.objects.get(**kwargs)
-            else:
-                texts.add(text)
-                combn = Combination.objects.create(**kwargs)
+            combn = Combination.objects.get(**kwargs)
             item.combinations.add(combn)
 
         fish.animate(amount=i)
