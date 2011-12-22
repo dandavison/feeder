@@ -24,13 +24,14 @@ OUTDIR = 'output'
 LOG_FP = open(os.path.join(OUTDIR, 'feeder.log'), 'w')
 COMMON_WORD_RANK = 500
 N_MOST_COMMON = 1000
+NOW = None
 START_TIME = None
 END_TIME = None
 TIME_EPSILON = timedelta(minutes=1)
 socket.setdefaulttimeout(10.0)
 
 
-def read_feeds(urls, start, end):
+def read_feeds(urls, start, end, db=False):
     feeds = []
 
     with futures.ThreadPoolExecutor(max_workers=5) as executor:
@@ -56,7 +57,7 @@ def read_feeds(urls, start, end):
                 continue
 
             try:
-                assert pub_time - now < TIME_EPSILON
+                assert pub_time - NOW < TIME_EPSILON
             except AssertionError:
                 print >>sys.stderr, 'Entry is from future? %s %s' % (pub_time, url)
 
@@ -229,21 +230,26 @@ if __name__ == '__main__':
     parser.add_argument('--kmax', type=int, default=2,
                         help='maximum number of words in a combination (default: 2)')
 
-
     args = parser.parse_args()
     validate_args(args)
 
-    os.system('find %s -type f -delete' % OUTDIR)
+    main(feed_file, args.start, args.end, args.kmax, OUTDIR)
 
-    with open(args.feed_file) as fp:
+
+def main(feed_file, start, end, kmax, outdir):
+
+    os.system('find %s -type f -delete' % outdir)
+
+    with open(feed_file) as fp:
         urls = [line.strip() for line in fp.readlines()]
 
     urls = validate_urls(urls)
     common_words = set(get_common_words())
 
-    now = get_datetime(gmtime())
-    START_TIME = now - timedelta(hours=args.start)
-    END_TIME = now - timedelta(hours=args.end)
+    global NOW, START_TIME, END_TIME
+    NOW = get_datetime(gmtime())
+    START_TIME = NOW - timedelta(hours=start)
+    END_TIME = NOW - timedelta(hours=end)
 
     print 'Fetching feeds between %s and %s...' % (
         as_local_time(START_TIME),
@@ -253,17 +259,17 @@ if __name__ == '__main__':
         sum(len(feed[1]) for feed in feeds),
         len(feeds))
 
-    analyze(feeds, args.kmax)
+    analyze(feeds, kmax, common_words, outdir)
 
 
-def analyze(feeds, kmax):
+def analyze(feeds, kmax, common_words, outdir):
     link_rows = []
     for k in range(1, kmax + 1):
         print '\n%d-word analysis...' % k
         words_file = '%d-word.html' % k
         link_rows.append((make_link(words_file),))
         occur = digest_feeds(feeds, k, common_words)
-        write_output(occur, os.path.join(OUTDIR, words_file))
+        write_output(occur, os.path.join(outdir, words_file))
 
     with open(os.path.join(OUTDIR, 'index.html'), 'w') as fp:
         fp.write(format_table_page(link_rows))
