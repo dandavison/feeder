@@ -6,7 +6,7 @@ from datetime import timedelta
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.db import settings
-
+from django import forms
 
 from words.models import Item
 
@@ -43,5 +43,27 @@ def include(words):
     return True
 
 
+class BrowseForm(forms.Form):
+    start_date = forms.DateField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={'class': 'required, datepicker'}))
+    start_time = forms.TimeField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={'class': 'required, timepicker'}))
+
+
 def home(request):
-    return HttpResponse('feeder')
+    if request.method == 'POST': # If the form has been submitted...
+        form = BrowseForm(request.POST) # A form bound to the POST data
+        if form.is_valid(): # All validation rules pass
+            # Process the data in form.cleaned_data
+            # ...
+            return HttpResponseRedirect('') # Redirect after POST
+    else:
+        form = BrowseForm() # An unbound form
+
+    return render_to_response('browse.html', {
+        'form': form,
+    })
