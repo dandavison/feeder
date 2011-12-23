@@ -17,7 +17,7 @@ MAX_N_WORDSETS = 1000
 def frequent_wordsets(request):
     executable = os.path.join(settings.SITE_DIRECTORY,
                               '../bin/apriori')
-    finder = Popen([executable, '-s4', '-m4','-v %S', '-', '-'],
+    finder = Popen([executable, '-s3', '-m3','-v %S', '-', '-'],
                    stdin=PIPE, stdout=PIPE)
     Item.objects.dump_wordsets(finder.stdin)
     finder.stdin.close()
