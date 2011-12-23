@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     # url(r'^feeder/', include('feeder.foo.urls')),
 
     url(r'^$', 'words.views.home'),
-    url(r'^wordsets$', 'words.views.frequent_wordsets'),
+    url(r'^wordsets/$', 'words.views.frequent_wordsets'),
 
 
     # Uncomment the admin/doc line below to enable admin documentation:
