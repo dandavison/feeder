@@ -1,0 +1,14 @@
+<html>
+<head></head>
+<body>
+  <table>
+    <tbody>
+      {% for wordset, frequency in wordsets %}
+      <tr>
+	<td>{{ wordset }}</td><td>{{ frequency }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

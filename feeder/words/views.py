@@ -1,18 +1,33 @@
 import os
+from operator import itemgetter
+from subprocess import Popen, PIPE
 from datetime import timedelta
 
 from django.shortcuts import render_to_response
 from django.db import settings
 
-from feeder_cli import main
+from words.models import Item
 
 
-FEED_FILE = os.path.join(settings.SITE_DIRECTORY, 'feeds.txt')
-OUTDIR = os.path.join(settings.SITE_DIRECTORY, 'output')
+MAX_N_WORDSETS = 1000
 
 
-def fetch(request):
+def get_frequent_wordsets(request):
 
-    main(FEED_FILE, start=3, end=0, kmax=2, outdir=OUTDIR)
+    executable = os.path.join(settings.SITE_DIRECTORY,
+                              '../bin/apriori')
+    finder = Popen([executable, '-s', 3, '-m', 3, '-', '-'],
+                   stdin=PIPE, stdout=PIPE)
+    Item.objects.dump_wordsets(finder.stdin)
+    finder.stdin.close()
+    wordsets = []
+    for line in finder.stdout.readlines()[0:MAX_N_WORDSETS]:
+        words, freq = line.split('  ')
+        wordsets.append((words.split(' '), float(freq)))
 
-    return render_to_response('output/index.html', {})
+    finder.stdout.close()
+
+    wordsets = sorted(wordsets, key=itemgetter(1))
+
+    return render_to_response('wordsets.html',
+                              {'wordsets': wordsets})
