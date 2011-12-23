@@ -25,8 +25,9 @@ def frequent_wordsets(request):
     for line in finder.stdout.readlines()[0:MAX_N_WORDSETS]:
         words = line.strip().split()
         freq = float(words[-1].strip())
-        words = words[0:(len(words) - 1)]
-        wordsets.append((' '.join(words), freq))
+        words = set(words[0:(len(words) - 1)])
+        if include(words):
+            wordsets.append((' '.join(sorted(words)), freq))
 
     finder.stdout.close()
 
@@ -34,6 +35,12 @@ def frequent_wordsets(request):
 
     return render_to_response('wordsets.html',
                               {'wordsets': wordsets})
+
+def include(words):
+    for similar_wordset in settings.SIMILAR_WORDSETS:
+        if len(words & similar_wordset) > 1:
+            return False
+    return True
 
 
 def home(request):

@@ -2,9 +2,9 @@
 import os
 SITE_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 
-# Should be a model
-from feeder_cli import get_common_words
+from common_words import get_common_words, get_similar_wordsets
 COMMON_WORDS = get_common_words()
+SIMILAR_WORDSETS = get_similar_wordsets()
 
 # Code added by Django, modified by Dan
 

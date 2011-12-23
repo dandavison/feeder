@@ -58,18 +58,6 @@ def write_output(occur, outfile, write_header=False):
     print 'Top %d word sets written to %s' % (N_MOST_COMMON, outfile)
 
 
-def get_common_words():
-    words = Word.file_reader('common_words/words.txt')
-    with open('common_words/extra_words.txt') as fp:
-        extra_words = set(line.strip()
-                          for line in fp.readlines())
-
-    common_words = set(word.wordform for word in words
-                       if word.rank <= COMMON_WORD_RANK)
-
-    return common_words | extra_words
-
-
 def format_table_page(*args, **kwargs):
     import utils
     preamble = utils.format_table([('Start:', as_local_time(START_TIME)),
