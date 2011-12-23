@@ -14,7 +14,9 @@ class ItemManager(models.Manager):
         """
         for item in self.all():
             words = set(parse(item.value)) - settings.COMMON_WORDS
-            fp.write(' '.join(words) + '\n')
+            # TODO: the file object that is passed in should know how
+            # to do the necessary encoding
+            fp.write((' '.join(words) + '\n').encode('utf-8'))
 
 
 class Item(models.Model):

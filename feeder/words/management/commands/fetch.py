@@ -95,3 +95,7 @@ if __name__ == '__main__':
 
     Feed.objects.all().delete()
     fetch(urls)
+    print '%d Feeds, %d Entries, %d Items' % (
+        Feed.objects.count(),
+        Entry.objects.count(),
+        Item.objects.count())
