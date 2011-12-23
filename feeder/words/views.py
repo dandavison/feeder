@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.db import settings
 from django import forms
+from django.template import RequestContext
 
 from words.models import Item
 
@@ -44,13 +45,14 @@ def include(words):
 
 
 class BrowseForm(forms.Form):
-    start_date = forms.DateField(
-        required=True,
-        widget=forms.TextInput(
-            attrs={'class': 'required, datepicker'}))
     start_time = forms.TimeField(
+        label = 'Start time',
         required=True,
-        widget=forms.TextInput(
+        widget=forms.TimeInput(
+            attrs={'class': 'required, timepicker'}))
+    end_time = forms.TimeField(
+        required=True,
+        widget=forms.TimeInput(
             attrs={'class': 'required, timepicker'}))
 
 
@@ -64,6 +66,7 @@ def home(request):
     else:
         form = BrowseForm() # An unbound form
 
+
     return render_to_response('browse.html', {
         'form': form,
-    })
+    }, context_instance=RequestContext(request))
