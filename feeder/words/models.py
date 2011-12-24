@@ -12,7 +12,9 @@ class ItemManager(models.Manager):
         pattern mining programs.
         http://borgelt.net/fpm.html
         """
-        for item in self.filter(**filter_kwargs):
+        items = self.filter(**filter_kwargs)
+        print 'Got %d items' % items.count()
+        for item in items:
             words = set(parse(item.value)) - settings.COMMON_WORDS
             # TODO: the file object that is passed in should know how
             # to do the necessary encoding
