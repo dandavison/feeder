@@ -5,7 +5,7 @@
     <tbody>
       {% for wordset, frequency in wordsets %}
       <tr>
-	<td>{{ wordset }}</td><td>{{ frequency }}</td>
+	<td>{{ wordset|join:" " }}</td><td><a href="/items/?wordset={{ wordset|join:',' }}">{{ frequency }}</a></td>
       </tr>
       {% endfor %}
     </tbody>

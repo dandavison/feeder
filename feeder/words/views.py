@@ -1,4 +1,5 @@
 import os
+import operator
 from operator import itemgetter
 from subprocess import Popen, PIPE
 from datetime import timedelta
@@ -28,7 +29,7 @@ def frequent_wordsets(request):
         freq = float(words[-1].strip())
         words = set(words[0:(len(words) - 1)])
         if include(words):
-            wordsets.append((' '.join(sorted(words)), freq))
+            wordsets.append((sorted(words), freq))
 
     finder.stdout.close()
 
@@ -37,11 +38,24 @@ def frequent_wordsets(request):
     return render_to_response('wordsets.html',
                               {'wordsets': wordsets})
 
+
 def include(words):
     for similar_wordset in settings.SIMILAR_WORDSETS:
         if len(words & similar_wordset) > 1:
             return False
     return True
+
+
+def matching_items(request):
+    wordset = request.GET['wordset'].split(',')
+
+    items = reduce(operator.and_,
+                   (Item.objects.filter(value__contains=word)
+                    for word in wordset))
+
+    return render_to_response('items.html',
+                              {'items': items})
+
 
 
 class BrowseForm(forms.Form):
