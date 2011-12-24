@@ -1,0 +1,17 @@
+<html>
+<head></head>
+<body>
+  <table>
+    <tbody>
+      {% for item in items %}
+      <tr>
+	<td><a href={{ item.entry.feed.url }}>{{ item.entry.feed.url }}</a></td>
+        <td>{{ item.entry.pub_time }}</td>
+        <td>{{ item.value|truncatewords:30 }}</td>
+      </tr>
+      <tr></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
