@@ -52,7 +52,9 @@ def matching_items(request):
 
     item_Q = reduce(operator.and_,
                     (Q(value__contains=word) for word in wordset))
-    items = Item.objects.filter(item_Q)
+    items = Item.objects.filter(item_Q). \
+            select_related('entry__feed'). \
+            order_by('-entry__pub_time')
 
     return render_to_response('items.html',
                               {'items': items})
