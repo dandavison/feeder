@@ -1,5 +1,14 @@
 <html>
 <head>
+<script type='text/javascript' src='/static/js/jquery.js'></script>
+<script type='text/javascript' src='/static/js/jquery-ui-timepicker/jquery.ui.core.min.js'></script>
+<script type='text/javascript' src='/static/js/jquery-ui-timepicker/jquery.timePicker.min.js'></script>
+<script type='text/javascript'>
+  $(function() {
+    $('#id_start_time').timePicker()
+    $('#id_end_time').timePicker()
+});
+</script>
 </head>
 <body>
   <form action="/wordsets/" method="post">{% csrf_token %}
