@@ -18,18 +18,7 @@ from words.models import Item, Entry, Feed
 MAX_N_WORDSETS = 1000
 
 
-def frequent_wordsets(request):
-    if request.method == 'POST':
-        form = BrowseForm(request.POST)
-        if form.is_valid():
-            start_time = get_datetime_from_time_today(
-                form.cleaned_data['start_time'])
-            end_time = get_datetime_from_time_today(
-                form.cleaned_data['end_time'])
-#            return HttpResponseRedirect('') # Redirect after POST
-        else:
-            raise NotImplementedError('Form is not valid')
-
+def frequent_wordsets(start_time, end_time):
     executable = os.path.join(settings.SITE_DIRECTORY,
                               '../bin/apriori')
     finder = Popen([executable, '-s3', '-m3','-v %S', '-', '-'],
@@ -101,12 +90,14 @@ class BrowseForm(forms.Form):
 
 
 def home(request):
-    if request.method == 'POST': # If the form has been submitted...
-        form = BrowseForm(request.POST) # A form bound to the POST data
-        if form.is_valid(): # All validation rules pass
-            # Process the data in form.cleaned_data
-            # ...
-            return HttpResponseRedirect('') # Redirect after POST
+    if request.method == 'POST':
+        form = BrowseForm(request.POST)
+        if form.is_valid():
+            start_time = get_datetime_from_time_today(
+                form.cleaned_data['start_time'])
+            end_time = get_datetime_from_time_today(
+                form.cleaned_data['end_time'])
+            return frequent_wordsets(start_time, end_time)
     else:
         today = datetime.today()
         now = datetime.now()

@@ -23,7 +23,7 @@
   <p>Earliest: {{ earliest }}</p>
   <p>Latest: {{ latest }}</p>
   <h3>Find frequent word clusters</h3>
-  <form action="/wordsets/" method="post">{% csrf_token %}
+  <form action="/" method="post">{% csrf_token %}
   {{ form.as_p }}
   <input type="submit" value="Go" />
   </form>
