@@ -7,6 +7,7 @@ from datetime import timedelta
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.db import settings
+from django.db.models import Q
 from django import forms
 from django.template import RequestContext
 
@@ -49,9 +50,9 @@ def include(words):
 def matching_items(request):
     wordset = request.GET['wordset'].split(',')
 
-    items = reduce(operator.and_,
-                   (Item.objects.filter(value__contains=word)
-                    for word in wordset))
+    item_Q = reduce(operator.and_,
+                    (Q(value__contains=word) for word in wordset))
+    items = Item.objects.filter(item_Q)
 
     return render_to_response('items.html',
                               {'items': items})
