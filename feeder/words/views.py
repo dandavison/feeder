@@ -2,15 +2,15 @@ import os
 import operator
 from operator import itemgetter
 from subprocess import Popen, PIPE
-from datetime import timedelta
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.db import settings
 from django.db.models import Q
 from django import forms
 from django.template import RequestContext
 
+from utils.time_utils import get_datetime_from_time_today
 from words.models import Item
 
 
@@ -18,11 +18,23 @@ MAX_N_WORDSETS = 1000
 
 
 def frequent_wordsets(request):
+    if request.method == 'POST':
+        form = BrowseForm(request.POST)
+        if form.is_valid():
+            start_time = get_datetime_from_time_today(
+                form.cleaned_data['start_time'])
+            end_time = get_datetime_from_time_today(
+                form.cleaned_data['end_time'])
+#            return HttpResponseRedirect('') # Redirect after POST
+        else:
+            raise NotImplementedError('Form is not valid')
+
     executable = os.path.join(settings.SITE_DIRECTORY,
                               '../bin/apriori')
     finder = Popen([executable, '-s3', '-m3','-v %S', '-', '-'],
                    stdin=PIPE, stdout=PIPE)
-    Item.objects.dump_wordsets(finder.stdin)
+    Item.objects.dump_wordsets(finder.stdin,
+                               entry__pub_time__range=(start_time, end_time))
     finder.stdin.close()
     wordsets = []
     for line in finder.stdout.readlines()[0:MAX_N_WORDSETS]:
@@ -37,7 +49,9 @@ def frequent_wordsets(request):
     wordsets = sorted(wordsets, key=itemgetter(1), reverse=True)
 
     return render_to_response('wordsets.html',
-                              {'wordsets': wordsets})
+                              {'start_time': start_time,
+                               'end_time': end_time,
+                               'wordsets': wordsets})
 
 
 def include(words):

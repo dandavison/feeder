@@ -6,13 +6,13 @@ from feeder_cli import parse
 
 class ItemManager(models.Manager):
 
-    def dump_wordsets(self, fp):
+    def dump_wordsets(self, fp, **filter_kwargs):
         """
         Format suitable as input to Christian Borgelt's frequent
         pattern mining programs.
         http://borgelt.net/fpm.html
         """
-        for item in self.all():
+        for item in self.filter(**filter_kwargs):
             words = set(parse(item.value)) - settings.COMMON_WORDS
             # TODO: the file object that is passed in should know how
             # to do the necessary encoding
