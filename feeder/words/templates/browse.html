@@ -13,8 +13,16 @@
     $('#id_end_time').timePicker()
 });
 </script>
+<title>{{ title }}</title>
 </head>
 <body>
+  <h1>{{ title }}</h1>
+  <p>{{ now }}</p>
+  <br>
+  <p>Database contains {{ n_items }} items from {{ n_feeds }} feeds</p>
+  <p>Earliest: {{ earliest }}</p>
+  <p>Latest: {{ latest }}</p>
+  <h3>Find frequent word clusters</h3>
   <form action="/wordsets/" method="post">{% csrf_token %}
   {{ form.as_p }}
   <input type="submit" value="Go" />

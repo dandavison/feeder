@@ -2,6 +2,7 @@ import os
 import operator
 from operator import itemgetter
 from subprocess import Popen, PIPE
+from datetime import datetime
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -11,7 +12,7 @@ from django import forms
 from django.template import RequestContext
 
 from utils.time_utils import get_datetime_from_time_today
-from words.models import Item
+from words.models import Item, Entry, Feed
 
 
 MAX_N_WORDSETS = 1000
@@ -107,9 +108,24 @@ def home(request):
             # ...
             return HttpResponseRedirect('') # Redirect after POST
     else:
-        form = BrowseForm() # An unbound form
+        today = datetime.today()
+        now = datetime.now()
+        form = BrowseForm(initial={'start_date': today,
+                                   'end_date': today,
+                                   'end_time': now})
 
+
+    entry_pub_times = sorted(Entry.objects.values_list('pub_time', flat=True))
+    earliest, latest = entry_pub_times[0], entry_pub_times[-1]
+    n_entries = len(entry_pub_times)
 
     return render_to_response('browse.html', {
+        'title': 'Feed Reader',
+        'n_items': Item.objects.count(),
+        'n_entries': n_entries,
+        'n_feeds': Feed.objects.count(),        
+        'earliest': earliest,
+        'latest': latest,
+        'now': now,
         'form': form,
     }, context_instance=RequestContext(request))
