@@ -1,0 +1,10 @@
+<html>
+<head>
+</head>
+<body>
+  <form action="/wordsets/" method="post">{% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" value="Go" />
+  </form>
+</body>
+</html>
