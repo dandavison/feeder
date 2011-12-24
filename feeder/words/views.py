@@ -76,11 +76,23 @@ def matching_items(request):
 
 
 class BrowseForm(forms.Form):
+    start_date = forms.DateField(
+        label='Start date',
+        required=True,
+        widget=forms.DateInput(
+            attrs={
+                'class': 'required, datepicker'}))
     start_time = forms.TimeField(
         label = 'Start time',
         required=True,
         widget=forms.TimeInput(
             attrs={'class': 'required, timepicker'}))
+    end_date = forms.DateField(
+        label='End date',
+        required=True,
+        widget=forms.DateInput(
+            attrs={
+                'class': 'required, datepicker'}))
     end_time = forms.TimeField(
         required=True,
         widget=forms.TimeInput(

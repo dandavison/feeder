@@ -1,11 +1,15 @@
 <html>
 <head>
+<link rel='stylesheet' href='/static/js/jquery-ui.css' type='text/css'/>
+
 <script type='text/javascript' src='/static/js/jquery.js'></script>
-<script type='text/javascript' src='/static/js/jquery-ui-timepicker/jquery.ui.core.min.js'></script>
-<script type='text/javascript' src='/static/js/jquery-ui-timepicker/jquery.timePicker.min.js'></script>
+<script type='text/javascript' src='/static/js/jquery-ui.js'></script>
+<script type='text/javascript' src='/static/js/jquery.timePicker.js'></script>
 <script type='text/javascript'>
   $(function() {
+    $('#id_start_date').datepicker()
     $('#id_start_time').timePicker()
+    $('#id_end_date').datepicker()
     $('#id_end_time').timePicker()
 });
 </script>
