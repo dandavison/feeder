@@ -32,6 +32,9 @@ class Entry(models.Model):
     feed = models.ForeignKey('Feed')
     pub_time = models.DateTimeField()
 
+    class Meta:
+        verbose_name_plural = 'entries'
+
 
 class Feed(models.Model):
     url = models.URLField()
