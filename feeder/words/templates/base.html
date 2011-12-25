@@ -1,0 +1,35 @@
+<html>
+
+  <head>
+
+    {% block style %}
+    <link rel='stylesheet' href='/static/js/jquery-ui.css' type='text/css'/>
+    <link rel='stylesheet' href='/static/css/djangobook.css' type='text/css'/>
+    {% endblock %}
+
+    {% block js %}
+    <script type='text/javascript' src='/static/js/jquery.js'></script>
+    <script type='text/javascript' src='/static/js/jquery-ui.js'></script>
+    <script type='text/javascript' src='/static/js/jquery.timePicker.js'></script>
+    <script type='text/javascript'>
+      $(function() {
+        $('#id_start_date').datepicker()
+        $('#id_start_time').timePicker()
+        $('#id_end_date').datepicker()
+        $('#id_end_time').timePicker()
+      });
+    </script>
+    {% endblock %}
+
+    <title>{{ title }}</title>
+
+  </head>
+
+  <body>
+    <div id='bd'>
+      {% block body %}
+      {% endblock %}
+    </div>
+  </body>
+
+</html>
