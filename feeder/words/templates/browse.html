@@ -26,19 +26,7 @@
   <p>Latest: {{ latest }}</p>
   <h3>Find frequent word clusters</h3>
   <form action="/" method="post">{% csrf_token %}
-  <table>
-    <tr>
-      <th><label for="id_start_date">Start date:</label></th>
-      <td><input id="id_start_date" type="text" class="required, datepicker" value="2011-12-24" name="start_date" /></td>
-      <th><label for="id_start_time">Start time:</label></th>
-    <td><input id="id_start_time" type="text" class="required, timepicker" name="start_time" /></td></tr>
-    <tr>
-      <th><label for="id_end_date">End date:</label></th>
-      <td><input id="id_end_date" type="text" class="required, datepicker" value="2011-12-24" name="end_date" /></td>
-      <th><label for="id_end_time">End time:</label></th>
-      <td><input id="id_end_time" type="text" class="required, timepicker" value="18:03:10" name="end_time" /></td>
-    </tr>
-  </table>
+  {{ form.as_p }}
   <input type="submit" value="Go" />
   </form>
 </div>
