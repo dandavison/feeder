@@ -1,6 +1,7 @@
 <html>
 <head>
 <link rel='stylesheet' href='/static/js/jquery-ui.css' type='text/css'/>
+<link rel='stylesheet' href='/static/css/djangobook.css' type='text/css'/>
 
 <script type='text/javascript' src='/static/js/jquery.js'></script>
 <script type='text/javascript' src='/static/js/jquery-ui.js'></script>
@@ -16,9 +17,10 @@
 <title>{{ title }}</title>
 </head>
 <body>
+<div id='bd'>
   <h1>{{ title }}</h1>
   <p>{{ now }}</p>
-  <br>
+  <br></br>
   <p>Database contains {{ n_items }} items from {{ n_feeds }} feeds</p>
   <p>Earliest: {{ earliest }}</p>
   <p>Latest: {{ latest }}</p>
@@ -39,5 +41,6 @@
   </table>
   <input type="submit" value="Go" />
   </form>
+</div>
 </body>
 </html>
