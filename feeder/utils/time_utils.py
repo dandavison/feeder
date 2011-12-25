@@ -14,4 +14,4 @@ def get_datetime_from_time_today(time):
     return (datetime.today() +
             timedelta(hours=time.hour,
                       minutes=time.minute,
-                      seconds=time.second)) - timedelta(hours=24)
+                      seconds=time.second))
