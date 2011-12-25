@@ -1,14 +1,13 @@
 import operator
 from datetime import datetime
 
-from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
-from django.db import settings
 from django.db.models import Q
 from django import forms
 from django.template import RequestContext
 
-from utils.time_utils import get_datetime_from_date_and_time, datetime_at_start_of
+from utils.time_utils import get_datetime_from_date_and_time
+from utils.time_utils import datetime_at_start_of
 from words.models import Item, Entry, Feed
 from wordsets import get_frequent_wordsets
 
@@ -29,8 +28,9 @@ def home(request):
                 form.cleaned_data['end_time'])
             return frequent_wordsets(start_time, end_time)
     else:
-        form = BrowseForm(initial={'start_date': today,
-                                   'start_time': start_of_today, 
+        from datetime import timedelta
+        form = BrowseForm(initial={'start_date': today - timedelta(days=2),
+                                   'start_time': start_of_today,
                                    'end_date': today,
                                    'end_time': now})
 
@@ -42,7 +42,7 @@ def home(request):
         'title': 'Feed Reader',
         'n_items': Item.objects.count(),
         'n_entries': n_entries,
-        'n_feeds': Feed.objects.count(),        
+        'n_feeds': Feed.objects.count(),
         'earliest': earliest,
         'latest': latest,
         'now': now,
@@ -58,7 +58,7 @@ class BrowseForm(forms.Form):
             attrs={
                 'class': 'required, datepicker'}))
     start_time = forms.TimeField(
-        label = 'Start time',
+        label='Start time',
         required=True,
         widget=forms.TimeInput(
             attrs={'class': 'required, timepicker'}))
