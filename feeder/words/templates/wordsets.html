@@ -1,6 +1,7 @@
-<html>
-<head></head>
-<body>
+{% extends "base.html" %}
+
+{% block body %}
+
   <h3> {{ start_time }} - {{ end_time }}</h3>
   <table>
     <tbody>
@@ -11,5 +12,5 @@
       {% endfor %}
     </tbody>
   </table>
-</body>
-</html>
+
+{% endblock %}

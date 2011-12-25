@@ -1,6 +1,7 @@
-<html>
-<head></head>
-<body>
+{% extends "base.html" %}
+
+{% block body %}
+
   <table>
     <tbody>
       {% for item in items %}
@@ -13,5 +14,5 @@
       {% endfor %}
     </tbody>
   </table>
-</body>
-</html>
+
+{% endblock %}
