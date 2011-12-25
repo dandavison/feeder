@@ -38,16 +38,12 @@ def home(request):
     earliest, latest = entry_pub_times[0], entry_pub_times[-1]
     n_entries = len(entry_pub_times)
 
-    return render_to_response('browse.html', {
-        'title': 'Feed Reader',
-        'n_items': Item.objects.count(),
-        'n_entries': n_entries,
-        'n_feeds': Feed.objects.count(),
-        'earliest': earliest,
-        'latest': latest,
-        'now': now,
-        'form': form,
-    }, context_instance=RequestContext(request))
+    title = 'Feed Reader'
+    n_items = Item.objects.count()
+    n_feeds = Feed.objects.count()
+
+    return render_to_response('browse.html', locals(),
+                              context_instance=RequestContext(request))
 
 
 class BrowseForm(forms.Form):
@@ -89,5 +85,4 @@ def matching_items(request):
             select_related('entry__feed'). \
             order_by('-entry__pub_time')
 
-    return render_to_response('items.html',
-                              {'items': items})
+    return render_to_response('items.html', locals())
