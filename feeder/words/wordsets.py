@@ -17,24 +17,24 @@ OUTFILE = '/tmp/out'
 
 
 def get_frequent_wordsets(start_time, end_time):
+    with open(INFILE, 'w') as fp:
+        items = dump_wordsets(fp,
+                              entry__pub_time__range=(start_time, end_time))
+
     for support in range(8, 0, -1):
         print 'Trying support=%d' % support
         wordsets = _get_frequent_wordsets(support, start_time, end_time)
         print 'Got %d wordsets' % len(wordsets)
         if len(wordsets) > MIN_N_WORDSETS:
-            return wordsets
+            return items, wordsets
 
     print 'Warning: Failed to find any frequent wordsets'
-    return []
+    return items, []
 
 
 def _get_frequent_wordsets(support, start_time, end_time):
     executable = os.path.join(settings.SITE_DIRECTORY,
                               '../bin/apriori')
-    with open(INFILE, 'w') as fp:
-        dump_wordsets(fp,
-                      entry__pub_time__range=(start_time, end_time))
-
     with open(INFILE) as fp:
         print 'input num lines: %d' % len(fp.readlines())
     os.system('%s -s%s -m%s -n%s -v" %%S" %s - |head -n %d >%s' % (
@@ -86,3 +86,5 @@ def dump_wordsets(fp, **filter_kwargs):
         # TODO: the file object that is passed in should know how
         # to do the necessary encoding
         fp.write((' '.join(words) + '\n').encode('utf-8'))
+
+    return items

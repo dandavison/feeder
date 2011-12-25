@@ -75,11 +75,9 @@ class BrowseForm(forms.Form):
 
 
 def frequent_wordsets(start_time, end_time):
-    return render_to_response(
-        'wordsets.html',
-        {'start_time': start_time,
-         'end_time': end_time,
-         'wordsets': get_frequent_wordsets(start_time, end_time)})
+    items, wordsets = get_frequent_wordsets(start_time, end_time)
+
+    return render_to_response('wordsets.html', locals())
 
 
 def matching_items(request):
