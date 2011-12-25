@@ -16,7 +16,7 @@ class ItemManager(models.Manager):
         for kwarg in filter_kwargs.items():
             print '\t%s: %s' % kwarg
         
-        items = self.filter(**filter_kwargs)
+        items = self.filter(**filter_kwargs).distinct()
         print 'Got %d items' % items.count()
         for item in items:
             words = set(parse(item.value)) - settings.COMMON_WORDS
