@@ -12,6 +12,10 @@ class ItemManager(models.Manager):
         pattern mining programs.
         http://borgelt.net/fpm.html
         """
+        print 'Searching for items matching:'
+        for kwarg in filter_kwargs.items():
+            print '\t%s: %s' % kwarg
+        
         items = self.filter(**filter_kwargs)
         print 'Got %d items' % items.count()
         for item in items:

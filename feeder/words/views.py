@@ -11,7 +11,7 @@ from django.db.models import Q
 from django import forms
 from django.template import RequestContext
 
-from utils.time_utils import get_datetime_from_time_today
+from utils.time_utils import get_datetime_from_date_and_time
 from words.models import Item, Entry, Feed
 
 
@@ -25,9 +25,11 @@ def home(request):
     if request.method == 'POST':
         form = BrowseForm(request.POST)
         if form.is_valid():
-            start_time = get_datetime_from_time_today(
+            start_time = get_datetime_from_date_and_time(
+                form.cleaned_data['start_date'],
                 form.cleaned_data['start_time'])
-            end_time = get_datetime_from_time_today(
+            end_time = get_datetime_from_date_and_time(
+                form.cleaned_data['end_date'],
                 form.cleaned_data['end_time'])
             return frequent_wordsets(start_time, end_time)
     else:
