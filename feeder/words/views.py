@@ -72,6 +72,7 @@ class BrowseForm(forms.Form):
 
 def frequent_wordsets(start_time, end_time):
     items, wordsets = get_frequent_wordsets(start_time, end_time)
+    n_items = Item.objects.count()
 
     return render_to_response('wordsets.html', locals())
 
