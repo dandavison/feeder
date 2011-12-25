@@ -11,7 +11,7 @@ from django.db.models import Q
 from django import forms
 from django.template import RequestContext
 
-from utils.time_utils import get_datetime_from_date_and_time
+from utils.time_utils import get_datetime_from_date_and_time, datetime_at_start_of
 from words.models import Item, Entry, Feed
 
 
@@ -20,6 +20,7 @@ MAX_N_WORDSETS = 1000
 
 def home(request):
     today = datetime.today()
+    start_of_today = datetime_at_start_of(today)
     now = datetime.now()
 
     if request.method == 'POST':
@@ -34,6 +35,7 @@ def home(request):
             return frequent_wordsets(start_time, end_time)
     else:
         form = BrowseForm(initial={'start_date': today,
+                                   'start_time': start_of_today, 
                                    'end_date': today,
                                    'end_time': now})
 

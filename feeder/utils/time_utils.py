@@ -15,3 +15,10 @@ def get_datetime_from_date_and_time(date, time):
             timedelta(hours=time.hour,
                       minutes=time.minute,
                       seconds=time.second))
+
+
+def datetime_at_start_of(dt):
+    t = dt.time()
+    return dt - timedelta(hours=t.hour,
+                          minutes=t.minute,
+                          seconds=t.second)
