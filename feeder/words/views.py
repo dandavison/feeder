@@ -19,6 +19,9 @@ MAX_N_WORDSETS = 1000
 
 
 def home(request):
+    today = datetime.today()
+    now = datetime.now()
+
     if request.method == 'POST':
         form = BrowseForm(request.POST)
         if form.is_valid():
@@ -28,8 +31,6 @@ def home(request):
                 form.cleaned_data['end_time'])
             return frequent_wordsets(start_time, end_time)
     else:
-        today = datetime.today()
-        now = datetime.now()
         form = BrowseForm(initial={'start_date': today,
                                    'end_date': today,
                                    'end_time': now})
