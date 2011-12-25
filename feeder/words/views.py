@@ -88,7 +88,9 @@ def frequent_wordsets(start_time, end_time):
                                entry__pub_time__range=(start_time, end_time))
     finder.stdin.close()
     wordsets = []
-    for line in finder.stdout.readlines()[0:MAX_N_WORDSETS]:
+    for line_num, line in enumerate(finder.stdout.readlines()):
+        if line_num > MAX_N_WORDSETS:
+            break
         words = line.strip().split()
         freq = float(words[-1].strip())
         words = set(words[0:(len(words) - 1)])
