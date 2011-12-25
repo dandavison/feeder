@@ -82,13 +82,19 @@ class BrowseForm(forms.Form):
 def frequent_wordsets(start_time, end_time):
     executable = os.path.join(settings.SITE_DIRECTORY,
                               '../bin/apriori')
-    finder = Popen([executable, '-s3', '-m3','-v %S', '-', '-'],
-                   stdin=PIPE, stdout=PIPE)
-    Item.objects.dump_wordsets(finder.stdin,
-                               entry__pub_time__range=(start_time, end_time))
-    finder.stdin.close()
+    infile = '/tmp/in'
+    outfile = '/tmp/out'
+
+    with open(infile, 'w') as fp:
+        Item.objects.dump_wordsets(fp,
+                                   entry__pub_time__range=(start_time, end_time))
+
+    os.system('%s -s4 -m3 -v %%S %s - |head -n 10000 >%s' % (
+        executable, infile, outfile))
+
+    stdout = open(outfile)
     wordsets = []
-    for line_num, line in enumerate(finder.stdout.readlines()):
+    for line_num, line in enumerate(stdout.readlines()):
         if line_num > MAX_N_WORDSETS:
             break
         words = line.strip().split()
@@ -97,7 +103,7 @@ def frequent_wordsets(start_time, end_time):
         if include(words):
             wordsets.append((sorted(words), freq))
 
-    finder.stdout.close()
+    stdout.close()
 
     wordsets = sorted(wordsets, key=itemgetter(1), reverse=True)
 
