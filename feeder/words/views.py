@@ -1,7 +1,4 @@
-import os
 import operator
-from operator import itemgetter
-from subprocess import Popen, PIPE
 from datetime import datetime
 
 from django.http import HttpResponse, HttpResponseRedirect
@@ -13,9 +10,7 @@ from django.template import RequestContext
 
 from utils.time_utils import get_datetime_from_date_and_time, datetime_at_start_of
 from words.models import Item, Entry, Feed
-
-
-MAX_N_WORDSETS = 1000
+from wordsets import get_frequent_wordsets
 
 
 def home(request):
@@ -80,44 +75,11 @@ class BrowseForm(forms.Form):
 
 
 def frequent_wordsets(start_time, end_time):
-    executable = os.path.join(settings.SITE_DIRECTORY,
-                              '../bin/apriori')
-    infile = '/tmp/in'
-    outfile = '/tmp/out'
-
-    with open(infile, 'w') as fp:
-        Item.objects.dump_wordsets(fp,
-                                   entry__pub_time__range=(start_time, end_time))
-
-    os.system('%s -s4 -m3 -v %%S %s - |head -n 10000 >%s' % (
-        executable, infile, outfile))
-
-    stdout = open(outfile)
-    wordsets = []
-    for line_num, line in enumerate(stdout.readlines()):
-        if line_num > MAX_N_WORDSETS:
-            break
-        words = line.strip().split()
-        freq = float(words[-1].strip())
-        words = set(words[0:(len(words) - 1)])
-        if include(words):
-            wordsets.append((sorted(words), freq))
-
-    stdout.close()
-
-    wordsets = sorted(wordsets, key=itemgetter(1), reverse=True)
-
-    return render_to_response('wordsets.html',
-                              {'start_time': start_time,
-                               'end_time': end_time,
-                               'wordsets': wordsets})
-
-
-def include(words):
-    for similar_wordset in settings.SIMILAR_WORDSETS:
-        if len(words & similar_wordset) > 1:
-            return False
-    return True
+    return render_to_response(
+        'wordsets.html',
+        {'start_time': start_time,
+         'end_time': end_time,
+         'wordsets': get_frequent_wordsets(start_time, end_time)})
 
 
 def matching_items(request):
