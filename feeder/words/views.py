@@ -28,8 +28,7 @@ def home(request):
                 form.cleaned_data['end_time'])
             return frequent_wordsets(start_time, end_time)
     else:
-        from datetime import timedelta
-        form = BrowseForm(initial={'start_date': today - timedelta(days=2),
+        form = BrowseForm(initial={'start_date': today,
                                    'start_time': start_of_today,
                                    'end_date': today,
                                    'end_time': now})
