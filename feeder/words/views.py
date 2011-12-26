@@ -18,20 +18,20 @@ def home(request):
     now = datetime.now()
 
     if request.method == 'POST':
-        form = BrowseForm(request.POST)
-        if form.is_valid():
+        wordsets_form = WordsetsForm(request.POST)
+        if wordsets_form.is_valid():
             start_time = get_datetime_from_date_and_time(
-                form.cleaned_data['start_date'],
-                form.cleaned_data['start_time'])
+                wordsets_form.cleaned_data['start_date'],
+                wordsets_form.cleaned_data['start_time'])
             end_time = get_datetime_from_date_and_time(
-                form.cleaned_data['end_date'],
-                form.cleaned_data['end_time'])
+                wordsets_form.cleaned_data['end_date'],
+                wordsets_form.cleaned_data['end_time'])
             return frequent_wordsets(start_time, end_time)
     else:
-        form = BrowseForm(initial={'start_date': today,
-                                   'start_time': start_of_today,
-                                   'end_date': today,
-                                   'end_time': now})
+        wordsets_form = WordsetsForm(initial={'start_date': today,
+                                              'start_time': start_of_today,
+                                              'end_date': today,
+                                              'end_time': now})
 
     entry_pub_times = sorted(Entry.objects.values_list('pub_time', flat=True))
     earliest, latest = entry_pub_times[0], entry_pub_times[-1]
@@ -45,7 +45,7 @@ def home(request):
                               context_instance=RequestContext(request))
 
 
-class BrowseForm(forms.Form):
+class WordsetsForm(forms.Form):
     start_date = forms.DateField(
         label='Start date',
         required=True,

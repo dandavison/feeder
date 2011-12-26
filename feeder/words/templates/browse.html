@@ -8,7 +8,7 @@
 <p>Database contains {{ n_items }} items from {{ n_feeds }} feeds ({{ earliest }} -- {{latest }})</p>
 <h3>Frequent word clusters</h3>
 <form action="/" method="post">{% csrf_token %}
-{{ form.as_p }}
+{{ wordsets_form.as_p }}
 <input type="submit" value="Go" />
 </form>
 
