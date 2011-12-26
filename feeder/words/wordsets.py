@@ -1,6 +1,6 @@
 import os
 from operator import itemgetter
-# from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE
 
 from django.db import settings
 
@@ -13,7 +13,6 @@ MIN_N_WORDSETS = 100
 MINIMUM_WORDSET_SIZE = 3
 MAXIMUM_WORDSET_SIZE = 3
 INFILE = '/tmp/in'
-OUTFILE = '/tmp/out'
 
 
 def get_frequent_wordsets(start_time, end_time):
@@ -23,7 +22,8 @@ def get_frequent_wordsets(start_time, end_time):
 
     for support in range(8, 0, -1):
         print 'Trying support=%d' % support
-        wordsets = _get_frequent_wordsets(support, start_time, end_time)
+        with open(INFILE) as stdin:
+            wordsets = _get_frequent_wordsets(stdin, support, start_time, end_time)
         print 'Got %d wordsets' % len(wordsets)
         if len(wordsets) > MIN_N_WORDSETS:
             return items, wordsets
@@ -32,32 +32,32 @@ def get_frequent_wordsets(start_time, end_time):
     return items, []
 
 
-def _get_frequent_wordsets(support, start_time, end_time):
+def _get_frequent_wordsets(stdin, support, start_time, end_time):
     executable = os.path.join(settings.SITE_DIRECTORY,
                               '../bin/apriori')
-    with open(INFILE) as fp:
-        print 'input num lines: %d' % len(fp.readlines())
-    os.system('%s -s%s -m%s -n%s -v" %%S" %s - |head -n %d >%s' % (
-        executable, support, MINIMUM_WORDSET_SIZE, MAXIMUM_WORDSET_SIZE,
-        INFILE, MAX_N_WORDSETS, OUTFILE))
 
-    # print 'counting output lines'
-    # with open(OUTFILE) as fp:
-    #     print 'output num lines: %d' % len(fp.readlines())
+    cmd = [executable,
+           '-s%s' % support,
+           '-m%s' % MINIMUM_WORDSET_SIZE,
+           '-n%s' % MAXIMUM_WORDSET_SIZE,
+           '-v %S',
+           '-', '-']
+    print ' '.join(cmd)
 
-    stdout = open(OUTFILE)
+    finder = Popen(cmd, stdin=PIPE, stdout=PIPE)
+    finder.stdin.write(stdin.read())
+    finder.stdin.close()
+
     wordsets = []
-    for line_num, line in enumerate(stdout):
+    for line_num, line in enumerate(finder.stdout):
         if line_num > MAX_N_WORDSETS:
-            raise Exception('Should not happen')
+            print 'Warning: more than %d wordsets' % MAX_N_WORDSETS
             break
         words = line.strip().split()
         freq = float(words[-1].strip())
         words = set(words[0:(len(words) - 1)])
         if include(words):
             wordsets.append((sorted(words), freq))
-
-    stdout.close()
 
     return sorted(wordsets, key=itemgetter(1), reverse=True)
 
