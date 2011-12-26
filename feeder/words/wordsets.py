@@ -5,7 +5,7 @@ from subprocess import Popen, PIPE
 from django.db import settings
 
 from utils import parse
-from words.models import Item
+from words.models import Entry, Item
 
 
 MAX_N_WORDSETS = 1000
@@ -13,6 +13,20 @@ MIN_N_WORDSETS = 100
 MINIMUM_WORDSET_SIZE = 3
 MAXIMUM_WORDSET_SIZE = 3
 INFILE = '/tmp/in'
+
+
+def get_new_wordsets(start_time):
+    entry_pub_times = sorted(Entry.objects.values_list('pub_time', flat=True))
+    earliest, latest = entry_pub_times[0], entry_pub_times[-1]
+    old_items, old_wordsets = get_frequent_wordsets(earliest, start_time)
+    new_items, new_wordsets = get_frequent_wordsets(start_time, latest)
+
+    old_set = set(wordset[0] for wordset in old_wordsets)
+    for wordset, freq in new_wordsets:
+        if wordset in old_set:
+            new_wordsets.remove((wordset, freq))
+
+    return new_items, new_wordsets
 
 
 def get_frequent_wordsets(start_time, end_time):

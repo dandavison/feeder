@@ -9,13 +9,16 @@ from django.template import RequestContext
 from utils.time_utils import get_datetime_from_date_and_time
 from utils.time_utils import datetime_at_start_of
 from words.models import Item, Entry, Feed
-from wordsets import get_frequent_wordsets
+from wordsets import get_frequent_wordsets, get_new_wordsets
 
 
 def home(request):
     today = datetime.today()
     start_of_today = datetime_at_start_of(today)
     now = datetime.now()
+    new_wordsets_form = NewWordsetsForm(
+        initial={'start_date': today,
+                 'start_time': start_of_today})
 
     if request.method == 'POST':
         wordsets_form = WordsetsForm(request.POST)
@@ -45,6 +48,20 @@ def home(request):
                               context_instance=RequestContext(request))
 
 
+class NewWordsetsForm(forms.Form):
+    start_date = forms.DateField(
+        label='Start date',
+        required=True,
+        widget=forms.DateInput(
+            attrs={
+                'class': 'required, datepicker'}))
+    start_time = forms.TimeField(
+        label='Start time',
+        required=True,
+        widget=forms.TimeInput(
+            attrs={'class': 'required, timepicker'}))
+
+
 class WordsetsForm(forms.Form):
     start_date = forms.DateField(
         label='Start date',
@@ -67,6 +84,22 @@ class WordsetsForm(forms.Form):
         required=True,
         widget=forms.TimeInput(
             attrs={'class': 'required, timepicker'}))
+
+
+def new_wordsets(request):
+    if request.method == 'POST':
+        form = NewWordsetsForm(request.POST)
+        if form.is_valid():
+            start_time = get_datetime_from_date_and_time(
+                form.cleaned_data['start_date'],
+                form.cleaned_data['start_time'])
+    else:
+        raise Exception('Should not happen')
+
+    items, wordsets = get_new_wordsets(start_time)
+    n_items = Item.objects.count()
+
+    return render_to_response('wordsets.html', locals())
 
 
 def frequent_wordsets(start_time, end_time):

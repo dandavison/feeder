@@ -12,4 +12,10 @@
 <input type="submit" value="Go" />
 </form>
 
+<h3>New word clusters</h3>
+<form action="/new_wordsets/" method="post">{% csrf_token %}
+{{ new_wordsets_form.as_p }}
+<input type="submit" value="Go" />
+</form>
+
 {% endblock %}
