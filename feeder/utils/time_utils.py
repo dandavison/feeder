@@ -11,7 +11,7 @@ def as_local_time(datetime):
 
 
 def get_datetime_from_date_and_time(date, time):
-    return (date +
+    return (datetime(*date.timetuple()[0:6]) +
             timedelta(hours=time.hour,
                       minutes=time.minute,
                       seconds=time.second))
