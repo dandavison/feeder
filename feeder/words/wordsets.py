@@ -22,10 +22,13 @@ def get_new_wordsets(start_time):
     new_items, new_wordsets = get_frequent_wordsets(start_time, latest)
 
     old_set = set(wordset[0] for wordset in old_wordsets)
+    print '%d new wordsets -> ' % len(new_wordsets),
     for wordset, freq in new_wordsets:
         if wordset in old_set:
             new_wordsets.remove((wordset, freq))
+            print '-',
 
+    print ' %d' % len(new_wordsets)
     return new_items, new_wordsets
 
 
