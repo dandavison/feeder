@@ -57,7 +57,7 @@ def _get_frequent_wordsets(stdin, support, start_time, end_time):
         freq = float(words[-1].strip())
         words = set(words[0:(len(words) - 1)])
         if include(words):
-            wordsets.append((sorted(words), freq))
+            wordsets.append((tuple(sorted(words)), freq))
 
     return sorted(wordsets, key=itemgetter(1), reverse=True)
 
