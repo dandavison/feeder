@@ -17,3 +17,6 @@ class Entry(models.Model):
 
 class Feed(models.Model):
     url = models.URLField()
+
+    def __unicode__(self):
+        return self.url
