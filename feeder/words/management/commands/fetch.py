@@ -88,13 +88,20 @@ def get_items(entry):
         return []
 
 
+def report_db_contents():
+    print '%d Feeds, %d Entries, %d Items' % (
+        Feed.objects.count(),
+        Entry.objects.count(),
+        Item.objects.count())
+
+
 if __name__ == '__main__':
 
     with open(sys.argv[1]) as fp:
         urls = [line.strip() for line in fp.readlines()]
 
+    print 'Was: ',
+    report_db_contents()
     fetch(urls)
-    print '%d Feeds, %d Entries, %d Items' % (
-        Feed.objects.count(),
-        Entry.objects.count(),
-        Item.objects.count())
+    print 'Now: ',
+    report_db_contents()
