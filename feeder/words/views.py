@@ -17,8 +17,8 @@ def home(request):
     start_of_today = datetime_at_start_of(today)
     now = datetime.now()
     new_wordsets_form = NewWordsetsForm(
-        initial={'start_date': today,
-                 'start_time': start_of_today})
+        initial={'new_wordsets_start_date': today,
+                 'new_wordsets_start_time': start_of_today})
 
     if request.method == 'POST':
         wordsets_form = WordsetsForm(request.POST)
@@ -49,13 +49,13 @@ def home(request):
 
 
 class NewWordsetsForm(forms.Form):
-    start_date = forms.DateField(
+    new_wordsets_start_date = forms.DateField(
         label='Start date',
         required=True,
         widget=forms.DateInput(
             attrs={
                 'class': 'required, datepicker'}))
-    start_time = forms.TimeField(
+    new_wordsets_start_time = forms.TimeField(
         label='Start time',
         required=True,
         widget=forms.TimeInput(
@@ -91,8 +91,8 @@ def new_wordsets(request):
         form = NewWordsetsForm(request.POST)
         if form.is_valid():
             start_time = get_datetime_from_date_and_time(
-                form.cleaned_data['start_date'],
-                form.cleaned_data['start_time'])
+                form.cleaned_data['new_wordsets_start_date'],
+                form.cleaned_data['new_wordsets_start_time'])
     else:
         raise Exception('Should not happen')
 
