@@ -100,6 +100,11 @@ def dump_wordsets(fp, **filter_kwargs):
     print 'Got %d items' % items.count()
     for item in items:
         words = set(parse(item.value)) - settings.COMMON_WORDS
+        for similar_wordset in settings.SIMILAR_WORDSETS:
+            if bool(words & similar_wordset):
+                words -= similar_wordset
+                words.add(sorted(similar_wordset)[0])
+
         # TODO: the file object that is passed in should know how
         # to do the necessary encoding
         fp.write((' '.join(words) + '\n').encode('utf-8'))
