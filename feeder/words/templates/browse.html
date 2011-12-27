@@ -1,5 +1,20 @@
 {% extends "base.html" %}
 
+{% block js %}
+{{ block.super }}
+<script type='text/javascript'>
+  $(function() {
+    $('#id_start_date').datepicker();
+    $('#id_start_time').timePicker();
+    $('#id_end_date').datepicker();
+    $('#id_end_time').timePicker();
+    $('#id_new_wordsets_start_date').datepicker();
+    $('#id_new_wordsets_start_time').timePicker();
+  });
+</script>
+{% endblock %}
+
+
 {% block body %}
 
 <h1>{{ title }}</h1>
