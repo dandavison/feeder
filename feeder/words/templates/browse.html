@@ -5,7 +5,7 @@
 <h1>{{ title }}</h1>
 <p>{{ now }}</p>
 <br></br>
-<p>Database contains {{ n_items }} items from {{ n_feeds }} feeds ({{ earliest }} -- {{latest }})</p>
+<p>Database contains {{ n_items }} <a href="/admin/words/item/">items</a> from {{ n_feeds }} <a href="/admin/words/feed/">feeds</a> ({{ earliest }} -- {{latest }})</p>
 <h3>Frequent word clusters</h3>
 <form action="/" method="post">{% csrf_token %}
 {{ wordsets_form.as_p }}
