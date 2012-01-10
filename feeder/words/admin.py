@@ -16,7 +16,11 @@ class ItemAdmin(admin.ModelAdmin):
     def entry__pub_time(self, obj):
         return obj.entry.pub_time
 
-    list_display = ('entry', 'entry__pub_time', 'truncated_value',)
+    def entry__feed__url(self, obj):
+        return '<a href=%s>%s</a>' % ((obj.entry.feed.url,) * 2)
+    entry__feed__url.allow_tags = True
+
+    list_display = ('entry__feed__url', 'entry__pub_time', 'truncated_value',)
     list_filter = ('entry__pub_time',)
     ordering = ('-entry__pub_time',)
     search_fields = ('value',)
