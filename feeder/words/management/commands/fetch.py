@@ -29,7 +29,7 @@ def fetch(urls):
             continue
 
         feed = future.result()
-        _feed = Feed.objects.create(url=url)
+        _feed, created = Feed.objects.get_or_create(url=url)
         for entry in feed.entries:
             try:
                 pub_time = get_datetime(entry.date_parsed)
@@ -45,9 +45,9 @@ def fetch(urls):
             except AssertionError:
                 print >>sys.stderr, 'Entry is from future? %s %s' % (pub_time, url)
 
-            _entry = Entry.objects.create(feed=_feed, pub_time=pub_time)
+            _entry, created = Entry.objects.get_or_create(feed=_feed, pub_time=pub_time)
             for item in get_items(entry):
-                Item.objects.create(value=item, entry=_entry)
+                Item.objects.get_or_create(value=item, entry=_entry)
 
         fish.animate(amount=i)
         i += 1
