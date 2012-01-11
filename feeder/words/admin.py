@@ -21,8 +21,8 @@ class ItemAdmin(admin.ModelAdmin):
     entry__feed__link.allow_tags = True
 
     def value_url(self, obj):
-        return '<a href=/admin/words/item/%d>%s</a>' % (
-            obj.id, obj.truncated_value())
+        return '<a href=%s>%s</a>' % (
+            obj.entry.feed.url, obj.value)
     value_url.allow_tags = True
 
     list_display = ('entry__feed__link', 'entry__pub_time', 'value_url',)
