@@ -2,6 +2,9 @@ request = require 'request'
 jsdom = require('jsdom')
 sys = require 'sys'
 
+# .text does not seem to be working with jsdom, so using
+# firstChild.nodeValue instead
+
 
 class Scraper
     scrape: (data, callback) ->
@@ -20,20 +23,18 @@ class Scraper
                 )
 
 
-
 class DailyCaller extends Scraper
     constructor: ->
         @name = 'dailycaller.com'
         @uri = 'http://dailycaller.com/section/politics/'
 
     _scrape: ($, data, callback) ->
-        a_elements = $('#widget-most-emailed .category-headline .blue a')
-        # .text does not seem to be working with jsdom, so using
-        # firstChild.nodeValue instead
-        links = (a_elements.map () ->
-            text: @firstChild.nodeValue.trim()
-            url: @href).toArray()
-        data['most emailed'] = links
+        for category in ['most-emailed', 'most-popular']
+            a_elements = $("#widget-#{category} .category-headline .blue a")
+            links = (a_elements.map () ->
+                text: @firstChild.nodeValue.trim()
+                url: @href).toArray()
+            data[category] = links
         callback()
 
 
