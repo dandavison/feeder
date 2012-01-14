@@ -33,12 +33,12 @@ class BuzzFeed extends Scraper
         @uri = 'http://www.buzzfeed.com/politics'
 
     _scrape: ($, data, callback) ->
-        $aa = $('.bf-widget div div a')
-        links = ({text: a.href, url: "http://www.buzzfeed.com#{a.href}"} \
-            for a in $aa.toArray() \
-            when ((a.href.indexOf('/usr/homebrew/lib/node/jsdom') == -1) and \
-                  (a.href.indexOf('twitter') == -1)))
+        validate = (url) ->
+            (url.indexOf('/usr/homebrew/lib/node/jsdom') == -1) and \
+            (url.indexOf('twitter') == -1)
 
+        links = get_link_data $('.bf-widget div div a'), (a) -> a.href
+        links = (link for link in links when validate link.url)
         data['Most viral in Politics'] = links
         callback()
 
