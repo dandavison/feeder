@@ -2,14 +2,7 @@ request = require 'request'
 sys = require 'sys'
 
 
-class DailyCaller
-    constructor: ->
-        @name = 'dailycaller.com'
-        @uri = 'http://dailycaller.com/section/politics/'
-
-    _scrape: (body) ->
-        {body}
-
+class Scraper
     scrape: ->
         [name, _scrape] = [@name, @_scrape]
         request uri: @uri, (error, response, body) ->
@@ -17,6 +10,16 @@ class DailyCaller
                 console.error 'Error when contacting #{name}'
                 return {}
             _scrape body
+
+
+class DailyCaller extends Scraper
+    constructor: ->
+        @name = 'dailycaller.com'
+        @uri = 'http://dailycaller.com/section/politics/'
+
+    _scrape: (body) ->
+        {body}
+
 
 
 SCRAPER_CLASSES = [DailyCaller]
