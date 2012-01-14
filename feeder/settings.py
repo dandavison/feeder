@@ -119,6 +119,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(SITE_DIRECTORY, 'words', 'templates'),
+    os.path.join(SITE_DIRECTORY, 'scraper', 'templates'),
 )
 
 INSTALLED_APPS = (
@@ -133,6 +134,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'words',
+    'scraper',
 )
 
 # A sample logging configuration. The only tangible logging

@@ -14,6 +14,8 @@ urlpatterns = patterns('',
     url(r'^new_wordsets/$', 'words.views.new_wordsets'),
     url(r'^items/$', 'words.views.matching_items'),
 
+    url(r'^scraper/$', 'scraper.views.scraper'),
+
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
