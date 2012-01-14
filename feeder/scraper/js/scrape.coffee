@@ -31,7 +31,7 @@ class DailyCaller extends Scraper
         # .text does not seem to be working with jsdom, so using
         # firstChild.nodeValue instead
         links = (a_elements.map () ->
-            text: @firstChild.nodeValue
+            text: @firstChild.nodeValue.trim()
             url: @href).toArray()
         data['most emailed'] = links
         callback()
