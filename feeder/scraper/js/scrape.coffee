@@ -4,7 +4,7 @@ sys = require 'sys'
 
 
 class Scraper
-    scrape: ->
+    scrape: (data, callback) ->
         [name, _scrape] = [@name, @_scrape]
         request uri: @uri, (error, response, body) ->
             if error and response.statusCode != 200
@@ -16,7 +16,7 @@ class Scraper
                     if error
                         console.error 'Error loading jquery'
                         return {}
-                    _scrape window.jQuery
+                    _scrape window.jQuery, name, data, callback
                 )
 
 
@@ -26,16 +26,15 @@ class DailyCaller extends Scraper
         @name = 'dailycaller.com'
         @uri = 'http://dailycaller.com/section/politics/'
 
-    _scrape: ($) ->
+    _scrape: ($, name, data, callback) ->
         a_elements = $('#widget-most-emailed .category-headline .blue a')
-
         # .text does not seem to be working with jsdom, so using
         # firstChild.nodeValue instead
         links = (a_elements.map () ->
             text: @firstChild.nodeValue
             url: @href).toArray()
-
-        'most emailed': links
+        data[name] = 'most emailed': links
+        callback()
 
 
 SCRAPER_CLASSES = [DailyCaller]
@@ -43,11 +42,13 @@ SCRAPER_CLASSES = [DailyCaller]
 
 scrape_all = ->
     data = {}
+    count = SCRAPER_CLASSES.length
+    callback = -> if --count is 0 then sys.puts JSON.stringify(data)
+
+
     for scraper_cls in SCRAPER_CLASSES
         scraper = new scraper_cls
-        data[scraper.name] = scraper.scrape()
-
-    sys.puts JSON.stringify(data)
+        scraper.scrape(data, callback)
 
 
 scrape_all()
