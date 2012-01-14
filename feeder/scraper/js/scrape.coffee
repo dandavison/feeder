@@ -26,6 +26,15 @@ get_link_data = ($aa, text_getter=(a) -> a.text) ->
     ({text: text_getter(a).trim(), url: a.href} for a in $aa.toArray())
 
 
+class BBCUSandCanada extends Scraper
+    constructor: ->
+        @name = 'BBC US & Canada'
+        @uri = 'http://www.bbc.co.uk/news/world-us-canada'
+
+    _scrape: ($, data, callback) ->
+        data['Most popular'] = get_link_data $('#most-popular-category div li a')
+        callback()
+
 
 class BuzzFeed extends Scraper
     constructor: ->
@@ -55,6 +64,7 @@ class DailyCaller extends Scraper
 
 
 SCRAPER_CLASSES = [
+    BBCUSandCanada,
     BuzzFeed,
     DailyCaller,
 ]
