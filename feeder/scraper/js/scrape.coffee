@@ -1,4 +1,5 @@
 request = require 'request'
+jsdom = require('jsdom')
 sys = require 'sys'
 
 
@@ -9,7 +10,15 @@ class Scraper
             if error and response.statusCode != 200
                 console.error 'Error when contacting #{name}'
                 return {}
-            _scrape body
+            jsdom.env(
+                {html: body, scripts: ['http://code.jquery.com/jquery-1.5.min.js']},
+                (error, window) ->
+                    if error
+                        console.error 'Error loading jquery'
+                        return {}
+                    _scrape window.jQuery
+                )
+
 
 
 class DailyCaller extends Scraper
@@ -17,8 +26,8 @@ class DailyCaller extends Scraper
         @name = 'dailycaller.com'
         @uri = 'http://dailycaller.com/section/politics/'
 
-    _scrape: (body) ->
-        {body}
+    _scrape: ($) ->
+        body: $('body').html()
 
 
 
