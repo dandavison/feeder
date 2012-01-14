@@ -58,8 +58,8 @@ class DailyCaller extends Scraper
         @uri = 'http://dailycaller.com/section/politics/'
 
     _scrape: ($, data, callback) ->
-        for category in ['most-emailed', 'most-popular']
-            data[category] = get_link_data $("#widget-#{category} .category-headline .blue a"), (a) -> a.firstChild.nodeValue
+        for [category, name] in [['most-emailed', 'Most emailed'], ['most-popular', 'Most popular']]
+            data[name] = get_link_data $("#widget-#{category} .category-headline .blue a"), (a) -> a.firstChild.nodeValue
         callback()
 
 
