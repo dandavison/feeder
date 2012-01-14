@@ -47,9 +47,8 @@ class DailyCaller extends Scraper
     _scrape: ($, data, callback) ->
         for category in ['most-emailed', 'most-popular']
             $aa = $("#widget-#{category} .category-headline .blue a")
-            links = ($aa.map () ->
-                text: @firstChild.nodeValue.trim()
-                url: @href).toArray()
+            links = ({text: a.firstChild.nodeValue.trim(), url: a.href} \
+                for a in $aa.toArray())
             data[category] = links
         callback()
 
