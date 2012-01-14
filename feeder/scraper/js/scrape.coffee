@@ -3,17 +3,18 @@ sys = require 'sys'
 
 
 class DailyCaller
-    @name = 'dailycaller.com'
-    @uri = 'http://dailycaller.com/section/politics/'
+    constructor: ->
+        @name = 'dailycaller.com'
+        @uri = 'http://dailycaller.com/section/politics/'
 
     _scrape: (body) ->
         {body}
 
     scrape: ->
-        _scrape = @_scrape
-        request uri: DailyCaller.uri, (error, response, body) ->
+        [name, _scrape] = [@name, @_scrape]
+        request uri: @uri, (error, response, body) ->
             if error and response.statusCode != 200
-                console.error 'Error when contacting #{DailyCaller.name}'
+                console.error 'Error when contacting #{name}'
                 return {}
             _scrape body
 
