@@ -27,8 +27,15 @@ class DailyCaller extends Scraper
         @uri = 'http://dailycaller.com/section/politics/'
 
     _scrape: ($) ->
-        body: $('body').html()
+        a_elements = $('#widget-most-emailed .category-headline .blue a')
 
+        # .text does not seem to be working with jsdom, so using
+        # firstChild.nodeValue instead
+        links = (a_elements.map () ->
+            text: @firstChild.nodeValue
+            url: @href).toArray()
+
+        'most emailed': links
 
 
 SCRAPER_CLASSES = [DailyCaller]
