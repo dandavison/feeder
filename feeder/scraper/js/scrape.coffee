@@ -23,6 +23,22 @@ class Scraper
                 )
 
 
+class BuzzFeed extends Scraper
+    constructor: ->
+        @name = 'buzzfeed'
+        @uri = 'http://www.buzzfeed.com/politics'
+
+    _scrape: ($, data, callback) ->
+        $aa = $('.bf-widget div div a')
+        links = ({text: a.href, url: "http://www.buzzfeed.com#{a.href}"} \
+            for a in $aa.toArray() \
+            when ((a.href.indexOf('/usr/homebrew/lib/node/jsdom') == -1) and \
+                  (a.href.indexOf('twitter') == -1)))
+
+        data['Most viral in Politics'] = links
+        callback()
+
+
 class DailyCaller extends Scraper
     constructor: ->
         @name = 'dailycaller'
@@ -38,7 +54,10 @@ class DailyCaller extends Scraper
         callback()
 
 
-SCRAPER_CLASSES = [DailyCaller]
+SCRAPER_CLASSES = [
+    BuzzFeed,
+    DailyCaller,
+]
 
 
 scrape_all = ->
