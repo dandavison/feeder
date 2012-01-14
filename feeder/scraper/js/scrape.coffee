@@ -25,13 +25,13 @@ class Scraper
 
 class DailyCaller extends Scraper
     constructor: ->
-        @name = 'dailycaller.com'
+        @name = 'dailycaller'
         @uri = 'http://dailycaller.com/section/politics/'
 
     _scrape: ($, data, callback) ->
         for category in ['most-emailed', 'most-popular']
-            a_elements = $("#widget-#{category} .category-headline .blue a")
-            links = (a_elements.map () ->
+            $aa = $("#widget-#{category} .category-headline .blue a")
+            links = ($aa.map () ->
                 text: @firstChild.nodeValue.trim()
                 url: @href).toArray()
             data[category] = links
