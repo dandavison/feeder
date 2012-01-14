@@ -22,6 +22,10 @@ class Scraper
                     _scrape window.jQuery, data, callback
                 )
 
+get_link_data = ($aa, text_getter=(a) -> a.text) ->
+    ({text: text_getter(a).trim(), url: a.href} for a in $aa.toArray())
+
+
 
 class BuzzFeed extends Scraper
     constructor: ->
@@ -46,10 +50,7 @@ class DailyCaller extends Scraper
 
     _scrape: ($, data, callback) ->
         for category in ['most-emailed', 'most-popular']
-            $aa = $("#widget-#{category} .category-headline .blue a")
-            links = ({text: a.firstChild.nodeValue.trim(), url: a.href} \
-                for a in $aa.toArray())
-            data[category] = links
+            data[category] = get_link_data $("#widget-#{category} .category-headline .blue a"), (a) -> a.firstChild.nodeValue
         callback()
 
 
