@@ -18,7 +18,7 @@ class Scraper
                     _scrape window.jQuery, data, callback
                 )
 
-    get_link_data: ($aa, text_getter=(a) -> a.text) =>
+    get_link_data: ($aa, text_getter=(a) -> a.href) =>
         # .text does not seem to be working with jsdom, so sometimes using
         # firstChild.nodeValue instead
         url_getter = (a) =>
@@ -34,7 +34,7 @@ class BBCUSandCanada extends Scraper
         @url = '/news/world/us_and_canada/'
 
     _scrape: ($, data, callback) =>
-        data['Most popular (need to get article titles)'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href
+        data['Most popular (need to get article titles)'] = @get_link_data $('#most-popular-category div li a')[0..1]
         callback()
 
 
@@ -49,7 +49,7 @@ class BuzzFeed extends Scraper
             (url.indexOf('/usr/homebrew/lib/node/jsdom') == -1) and \
             (url.indexOf('twitter') == -1)
 
-        links = @get_link_data $('.bf-widget div div a'), (a) -> a.href
+        links = @get_link_data $('.bf-widget div div a')
         links = (link for link in links when validate link.url)
         data['Most viral in Politics'] = links
         callback()
@@ -74,7 +74,7 @@ class WSJWashwire extends Scraper
         @url = '/washwire/'
 
     _scrape: ($, data, callback) =>
-        data['All (more work needed to disect them)'] = @get_link_data $('.mostPopular a'), (a) -> a.href
+        data['All (more work needed to disect them)'] = @get_link_data $('.mostPopular a')
         callback()
 
 
