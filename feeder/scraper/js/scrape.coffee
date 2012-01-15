@@ -67,6 +67,21 @@ class DailyCaller extends Scraper
         callback()
 
 
+class WashingtonPost extends Scraper
+    constructor: ->
+        @name = 'Washington Post: Politics'
+        @domain = 'http://www.washingtonpost.com'
+        @url = '/politics'
+
+    _scrape: ($, data, callback) =>
+        el = $('.most-post ul li span .title')[0]
+        # TODO: Should check that [0] corresponds to 'Most Popular',
+        # and not 'Top Videos' or 'Top Galleries'
+        $aa = $(el).parent().next().find('a')
+        data['Most Popular'] = @get_link_data $aa, (a) -> a.firstChild.nodeValue
+        callback()
+
+
 class WSJ extends Scraper
     constructor: ->
         @name = 'WSJ'
@@ -94,6 +109,7 @@ SCRAPER_CLASSES = [
     BBCUSandCanada,
     BuzzFeed,
     DailyCaller,
+    WashingtonPost,
     WSJ,
     WSJWashwire,
 ]
