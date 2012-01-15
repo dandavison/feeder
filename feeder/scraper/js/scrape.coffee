@@ -27,6 +27,17 @@ class Scraper
         ({text: text_getter(a).trim(), url: url_getter(a)} for a in $aa.toArray())
 
 
+class TheAtlantic extends Scraper
+    constructor: ->
+        @name = 'The Atlantic'
+        @domain = 'http://www.theatlantic.com'
+        @url = '/politics/'
+
+    _scrape: ($, data, callback) =>
+        data['Most Popular'] = @get_link_data $('#mostPopular a'), (a) -> a.firstChild.nodeValue
+        callback()
+
+
 class BBCUSandCanada extends Scraper
     constructor: ->
         @name = 'BBC US & Canada (daily most popular)'
@@ -154,6 +165,7 @@ class WSJWashwire extends Scraper
 
 
 SCRAPER_CLASSES = [
+    TheAtlantic,
     BBCUSandCanada,
 #    BuzzFeed,
     DailyCaller,
