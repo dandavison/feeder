@@ -125,6 +125,18 @@ class NewYorkTimes extends Scraper
         callback()
 
 
+class NPR extends Scraper
+    constructor: ->
+        @name = 'NPR'
+        @domain = 'http://www.npr.org'
+        @url = '/'
+
+    _scrape: ($, data, callback) =>
+        for [category, name] in [['viewed', 'Most Viewed'], ['comm', 'Most Commented (not working?)'], ['mostViewed', 'Most Recommended (not working?)']]
+            data[name] = @get_link_data $("#mostpopular .view#{category} ol li a")
+        callback()
+
+
 class Politico extends Scraper
     constructor: ->
         @name = 'Politico'
@@ -221,6 +233,7 @@ SCRAPER_CLASSES = [
     FoxNews,
     HuffingtonPost,
     NewYorkTimes,
+    NPR,
     Politico,
     Slate,
     ThinkProgress,
