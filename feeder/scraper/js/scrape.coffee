@@ -67,6 +67,17 @@ class DailyCaller extends Scraper
         callback()
 
 
+class FoxNews extends Scraper
+    constructor: ->
+        @name = 'Fox News: Politics'
+        @domain = 'http://www.foxnews.com'
+        @url = '/politics'
+
+    _scrape: ($, data, callback) =>
+        data['Trending in Politics'] = @get_link_data $('.trending-descending li a'), (a) -> a.firstChild.nodeValue
+        callback()
+
+
 class WashingtonPost extends Scraper
     constructor: ->
         @name = 'Washington Post: Politics'
@@ -109,6 +120,7 @@ SCRAPER_CLASSES = [
     BBCUSandCanada,
     BuzzFeed,
     DailyCaller,
+    FoxNews,
     WashingtonPost,
     WSJ,
     WSJWashwire,
