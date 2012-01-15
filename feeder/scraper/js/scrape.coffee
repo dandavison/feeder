@@ -67,10 +67,22 @@ class DailyCaller extends Scraper
         callback()
 
 
+class WSJWashwire extends Scraper
+    constructor: ->
+        @name = 'WSJ: washwire'
+        @domain = 'http://blogs.wsj.com'
+        @url = '/washwire/'
+
+    _scrape: ($, data, callback) =>
+        data['All (more work needed to disect them)'] = @get_link_data $('.mostPopular a'), (a) -> a.href
+        callback()
+
+
 SCRAPER_CLASSES = [
     BBCUSandCanada,
     BuzzFeed,
     DailyCaller,
+    WSJWashwire,
 ]
 
 
