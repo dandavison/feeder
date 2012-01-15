@@ -34,7 +34,7 @@ class BBCUSandCanada extends Scraper
         @url = '/news/world/us_and_canada/'
 
     _scrape: ($, data, callback) =>
-        data['Most popular'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href
+        data['Most popular (need to get article titles)'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href
         callback()
 
 
