@@ -204,7 +204,7 @@ class TheWeek extends Scraper
 SCRAPER_CLASSES = [
     TheAtlantic,
     BBCUSandCanada,
-#    BuzzFeed,
+#    BuzzFeed, # broken
     DailyCaller,
     FoxNews,
     HuffingtonPost,
@@ -214,7 +214,7 @@ SCRAPER_CLASSES = [
     ThinkProgress,
     WashingtonPost,
     WSJ,
-#    WSJWashwire,
+#    WSJWashwire, # broken
     TheWeek,
 ]
 
