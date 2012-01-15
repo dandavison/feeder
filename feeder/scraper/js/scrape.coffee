@@ -66,6 +66,17 @@ class BuzzFeed extends Scraper
         callback()
 
 
+class CNN extends Scraper
+    constructor: ->
+        @name = 'CNN'
+        @domain = 'http://www.cnn.com'
+        @url = '/'
+
+    _scrape: ($, data, callback) =>
+        data['Popular on Facebook'] = @get_link_data $('#pmFacebook li a')
+        callback()
+
+
 class DailyCaller extends Scraper
     constructor: ->
         @name = 'DailyCaller'
@@ -205,6 +216,7 @@ SCRAPER_CLASSES = [
     TheAtlantic,
     BBCUSandCanada,
 #    BuzzFeed, # broken
+#    CNN, # Popular on Facebook requires facebook access
     DailyCaller,
     FoxNews,
     HuffingtonPost,
