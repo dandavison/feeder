@@ -78,6 +78,18 @@ class FoxNews extends Scraper
         callback()
 
 
+class Politico extends Scraper
+    constructor: ->
+        @name = 'Politico'
+        @domain = 'http://www.politico.com'
+        @url = '/'
+
+    _scrape: ($, data, callback) =>
+        for [category, name] in [['MostRead', 'Most Read'], ['MostEmailed', 'Most Emailed'], ['MostCommented', 'Most Commented']]
+            data[name] = @get_link_data $("#popular#{category} ol li a"), (a) -> a.firstChild.nodeValue
+        callback()
+
+
 class WashingtonPost extends Scraper
     constructor: ->
         @name = 'Washington Post: Politics'
@@ -121,6 +133,7 @@ SCRAPER_CLASSES = [
     BuzzFeed,
     DailyCaller,
     FoxNews,
+    Politico,
     WashingtonPost,
     WSJ,
     WSJWashwire,
