@@ -6,12 +6,17 @@
     {% for category, links in site_data.items %}
     <h2> {{ category }} </h2>
     <table>
+      <thead></thead>
       <tbody>
-        {% for link in links %}
         <tr>
+        {% for link in links %}
 	  <td><a href={{ link.url }}>{{ link.text }}</a></td>
-        </tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        {% if forloop.counter|divisibleby:"2" %}
+        </tr><tr>
+        {% endif %}
         {% endfor %}
+      </tr>
       </tbody>
     </table>
     {% endfor %}
