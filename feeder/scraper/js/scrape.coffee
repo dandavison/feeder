@@ -29,10 +29,10 @@ get_link_data = ($aa, text_getter=(a) -> a.text) ->
 class BBCUSandCanada extends Scraper
     constructor: ->
         @name = 'BBC US & Canada'
-        @uri = 'http://www.bbc.co.uk/news/world-us-canada'
+        @uri = 'http://www.bbc.co.uk/news/world/us_and_canada/'
 
     _scrape: ($, data, callback) ->
-        data['Most popular'] = get_link_data $('#most-popular-category div li a')
+        data['Most popular'] = get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href
         callback()
 
 
