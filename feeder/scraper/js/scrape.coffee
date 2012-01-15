@@ -47,6 +47,17 @@ class BBCUSandCanada extends Scraper
         callback()
 
 
+class BBCUSandCanadaArticle extends Scraper
+    constructor: ->
+        @name = 'BBC US & Canada'
+        @domain = 'http://www.bbc.co.uk'
+        @url = '/news/world-us-canada-16549624'
+
+    _scrape: ($, data, callback) =>
+        data['Shared & Read (need to disect and get article titles)'] = @get_link_data $('#most-popular div ol li a'), (a) -> a.href.split('/').pop()
+        callback()
+
+
 class BuzzFeed extends Scraper
     constructor: ->
         @name = 'buzzfeed'
@@ -270,6 +281,7 @@ class Yahoo extends Scraper
 
 SCRAPER_CLASSES = [
     TheAtlantic,
+    BBCUSandCanadaArticle,
     BBCUSandCanada,
 #    BuzzFeed, # broken
 #    CNN, # Popular on Facebook requires facebook access
