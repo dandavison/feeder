@@ -246,6 +246,17 @@ class TheWeek extends Scraper
         callback()
 
 
+class Yahoo extends Scraper
+    constructor: ->
+        @name = 'Yahoo'
+        @domain = 'http://news.yahoo.com'
+        @url = '/most-popular'
+
+    _scrape: ($, data, callback) =>
+        data['Most popular'] = @get_link_data $(".most-popular-ul li div a"), (a) -> a.href.split('/').pop()
+        callback()
+
+
 SCRAPER_CLASSES = [
     TheAtlantic,
     BBCUSandCanada,
@@ -265,6 +276,7 @@ SCRAPER_CLASSES = [
     WSJ,
 #    WSJWashwire, # broken
     TheWeek,
+    Yahoo,
 ]
 
 
