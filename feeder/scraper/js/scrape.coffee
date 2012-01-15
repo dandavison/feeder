@@ -29,7 +29,7 @@ class Scraper
 
 class BBCUSandCanada extends Scraper
     constructor: ->
-        @name = 'BBC US & Canada'
+        @name = 'BBC US & Canada (daily most popular)'
         @domain = 'http://www.bbc.co.uk'
         @url = '/news/world/us_and_canada/'
 
