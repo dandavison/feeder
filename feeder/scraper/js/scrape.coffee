@@ -45,7 +45,7 @@ class BBCUSandCanada extends Scraper
         @url = '/news/world/us_and_canada/'
 
     _scrape: ($, data, callback) =>
-        data['Most popular (need to get article titles)'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href
+        data['Most popular (need to get article titles)'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href.split('/').pop()
         callback()
 
 
@@ -60,7 +60,7 @@ class BuzzFeed extends Scraper
             (url.indexOf('/usr/homebrew/lib/node/jsdom') == -1) and \
             (url.indexOf('twitter') == -1)
 
-        links = @get_link_data $('.bf-widget div div a'), (a) -> a.href
+        links = @get_link_data $('.bf-widget div div a'), (a) -> a.href.split('/').pop()
         links = (link for link in links when validate link.url)
         data['Most viral in Politics'] = links
         callback()
@@ -133,7 +133,7 @@ class Slate extends Scraper
         @url = '/'
 
     _scrape: ($, data, callback) =>
-        links = @get_link_data $('.most_read_and_commented li a'), (a) -> a.href
+        links = @get_link_data $('.most_read_and_commented li a'), (a) -> a.href.split('/').pop()
         links = (link for link in links when link.url isnt 'javascript:void(0)')
         data['Most Read & Most Shared (need to disect them)'] = links
         callback()
@@ -184,7 +184,7 @@ class WSJWashwire extends Scraper
         @url = '/washwire/'
 
     _scrape: ($, data, callback) =>
-        data['All (more work needed to disect them)'] = @get_link_data $('.mostPopular a'), (a) -> a.href
+        data['All (more work needed to disect them)'] = @get_link_data $('.mostPopular a'), (a) -> a.href.split('/').pop()
         callback()
 
 
@@ -197,7 +197,7 @@ class TheWeek extends Scraper
     _scrape: ($, data, callback) =>
         for [category, name] in [['mostRead', 'Most Read'], ['mostEmailed', 'Most Emailed']]
             # TODO: Why doesn't firstChild.nodeValue work?
-            data[name] = @get_link_data $("##{category} a"), (a) -> a.href
+            data[name] = @get_link_data $("##{category} a"), (a) -> a.href.split('/').pop()
         callback()
 
 
