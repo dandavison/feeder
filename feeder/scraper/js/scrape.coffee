@@ -183,6 +183,17 @@ class ThinkProgress extends Scraper
         callback()
 
 
+class WashingtonExaminer extends Scraper
+    constructor: ->
+        @name = 'Washington Examiner'
+        @domain = 'http://washingtonexaminer.com'
+        @url = '/'
+
+    _scrape: ($, data, callback) =>
+        data['Most Popular'] = @get_link_data $(".view-popular div ul li a")
+        callback()
+
+
 class WashingtonPost extends Scraper
     constructor: ->
         @name = 'Washington Post: Politics'
@@ -271,6 +282,7 @@ SCRAPER_CLASSES = [
     Politico,
     Slate,
     ThinkProgress,
+    WashingtonExaminer,
     WashingtonPost,
     Wonkette,
     WSJ,
