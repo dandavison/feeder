@@ -139,6 +139,17 @@ class Slate extends Scraper
         callback()
 
 
+class ThinkProgress extends Scraper
+    constructor: ->
+        @name = 'ThinkProgress'
+        @domain = 'http://thinkprogress.org'
+        @url = '/'
+
+    _scrape: ($, data, callback) =>
+        data['Facebook & Twitter (need to disect them)'] = @get_link_data $('.popular li a')
+        callback()
+
+
 class WashingtonPost extends Scraper
     constructor: ->
         @name = 'Washington Post: Politics'
@@ -200,6 +211,7 @@ SCRAPER_CLASSES = [
     NewYorkTimes,
     Politico,
     Slate,
+    ThinkProgress,
     WashingtonPost,
     WSJ,
 #    WSJWashwire,
