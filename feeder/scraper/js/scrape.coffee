@@ -68,7 +68,7 @@ class BuzzFeed extends Scraper
 
 class DailyCaller extends Scraper
     constructor: ->
-        @name = 'dailycaller'
+        @name = 'DailyCaller'
         @domain = 'http://dailycaller.com'
         @url = '/section/politics/'
 
