@@ -9,7 +9,7 @@ sys = require 'sys'
 class Scraper
     scrape: (data, callback) ->
         [name, _scrape] = [@name, @_scrape]
-        request uri: @uri, (error, response, body) ->
+        request uri: @domain + @url, (error, response, body) ->
             if error and response.statusCode != 200
                 console.error 'Error when contacting #{name}'
                 return {}
@@ -29,7 +29,8 @@ get_link_data = ($aa, text_getter=(a) -> a.text) ->
 class BBCUSandCanada extends Scraper
     constructor: ->
         @name = 'BBC US & Canada'
-        @uri = 'http://www.bbc.co.uk/news/world/us_and_canada/'
+        @domain = 'http://www.bbc.co.uk'
+        @url = '/news/world/us_and_canada/'
 
     _scrape: ($, data, callback) ->
         data['Most popular'] = get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href
@@ -39,7 +40,8 @@ class BBCUSandCanada extends Scraper
 class BuzzFeed extends Scraper
     constructor: ->
         @name = 'buzzfeed'
-        @uri = 'http://www.buzzfeed.com/politics'
+        @domain = 'http://www.buzzfeed.com'
+        @url = '/politics'
 
     _scrape: ($, data, callback) ->
         validate = (url) ->
@@ -55,7 +57,8 @@ class BuzzFeed extends Scraper
 class DailyCaller extends Scraper
     constructor: ->
         @name = 'dailycaller'
-        @uri = 'http://dailycaller.com/section/politics/'
+        @domain = 'http://dailycaller.com'
+        @url = '/section/politics/'
 
     _scrape: ($, data, callback) ->
         for [category, name] in [['most-emailed', 'Most emailed'], ['most-popular', 'Most popular']]
