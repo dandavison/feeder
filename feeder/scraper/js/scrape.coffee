@@ -126,6 +126,19 @@ class Politico extends Scraper
         callback()
 
 
+class Slate extends Scraper
+    constructor: ->
+        @name = 'Slate'
+        @domain = 'http://www.slate.com'
+        @url = '/'
+
+    _scrape: ($, data, callback) =>
+        links = @get_link_data $('.most_read_and_commented li a'), (a) -> a.href
+        links = (link for link in links when link.url isnt 'javascript:void(0)')
+        data['Most Read & Most Shared (need to disect them)'] = links
+        callback()
+
+
 class WashingtonPost extends Scraper
     constructor: ->
         @name = 'Washington Post: Politics'
@@ -186,6 +199,7 @@ SCRAPER_CLASSES = [
     HuffingtonPost,
     NewYorkTimes,
     Politico,
+    Slate,
     WashingtonPost,
     WSJ,
 #    WSJWashwire,
