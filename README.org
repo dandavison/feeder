@@ -2,15 +2,15 @@
 * feeder : a feed aggregator / summarizer
 * setup
   - Install python
-  - pip install django
+  : pip install django
 ** scraper
    - Install node.js, coffee-script, npm
    : cd feeder/scraper/js && npm install
 ** feeder
    Run these commands to install required python libraries:
-   - pip install feedparser
-   - pip install BeautifulSoup
-   - pip install futures
+   : pip install feedparser
+   : pip install BeautifulSoup
+   : pip install futures
 * usage
   : cd feeder
   : python manage.py runserver
