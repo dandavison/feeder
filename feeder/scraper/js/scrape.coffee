@@ -67,6 +67,18 @@ class DailyCaller extends Scraper
         callback()
 
 
+class WSJ extends Scraper
+    constructor: ->
+        @name = 'WSJ'
+        @domain = 'http://online.wsj.com'
+        @url = '/public/page/news-world-business.html'
+
+    _scrape: ($, data, callback) =>
+        for [category, name] in [['mostRead', 'Most Read'], ['mostEmailed', 'Most Emailed'], ['mostCommented', 'Most Commented']]
+            data[name] = @get_link_data $("#mostPopularTab_panel_#{category} ul li a"), (a) -> a.firstChild.nodeValue
+        callback()
+
+
 class WSJWashwire extends Scraper
     constructor: ->
         @name = 'WSJ: washwire'
@@ -82,6 +94,7 @@ SCRAPER_CLASSES = [
     BBCUSandCanada,
     BuzzFeed,
     DailyCaller,
+    WSJ,
     WSJWashwire,
 ]
 
