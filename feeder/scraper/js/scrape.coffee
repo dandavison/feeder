@@ -143,14 +143,14 @@ class WSJWashwire extends Scraper
 
 SCRAPER_CLASSES = [
     BBCUSandCanada,
-    BuzzFeed,
+#    BuzzFeed,
     DailyCaller,
     FoxNews,
     HuffingtonPost,
     Politico,
     WashingtonPost,
     WSJ,
-    WSJWashwire,
+#    WSJWashwire,
 ]
 
 
