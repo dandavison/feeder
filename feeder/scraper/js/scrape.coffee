@@ -198,6 +198,18 @@ class WashingtonPost extends Scraper
         callback()
 
 
+class Wonkette extends Scraper
+    constructor: ->
+        @name = 'Wonkette'
+        @domain = 'http://wonkette.com'
+        @url = '/'
+
+    _scrape: ($, data, callback) =>
+        for [category, name] in [['most_read_box', 'Most Read'], ['most_commented_box', 'Most Commented']]
+            data[name] = @get_link_data $("##{category} ul li a")
+        callback()
+
+
 class WSJ extends Scraper
     constructor: ->
         @name = 'WSJ'
@@ -249,6 +261,7 @@ SCRAPER_CLASSES = [
     Slate,
     ThinkProgress,
     WashingtonPost,
+    Wonkette,
     WSJ,
 #    WSJWashwire, # broken
     TheWeek,
