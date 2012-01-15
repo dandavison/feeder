@@ -2,10 +2,6 @@ request = require 'request'
 jsdom = require('jsdom')
 sys = require 'sys'
 
-# .text does not seem to be working with jsdom, so using
-# firstChild.nodeValue instead
-
-
 class Scraper
     scrape: (data, callback) ->
         [name, _scrape] = [@name, @_scrape]
@@ -23,6 +19,8 @@ class Scraper
                 )
 
     get_link_data: ($aa, text_getter=(a) -> a.text) =>
+        # .text does not seem to be working with jsdom, so sometimes using
+        # firstChild.nodeValue instead
         url_getter = (a) =>
             if a.href[0] is '/' then @domain + a.href else a.href
 
