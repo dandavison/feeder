@@ -107,8 +107,8 @@ class HuffingtonPost extends Scraper
         @url = '/'
 
     _scrape: ($, data, callback) =>
-        links = @get_link_data $('.snp_most_popular_entry_desc a'), (a) -> a.href.split('/').pop()
-        links = (link for link in links when link.text)
+        links = @get_link_data $('.snp_most_popular_entry_desc a'), (a) -> a.href.split('/').pop().split('_n_')[0]
+        links = (link for link in links when link.text and link.url.indexOf('javascript') isnt 0)
         data['Most Popular'] = links
         callback()
 
