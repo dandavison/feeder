@@ -22,8 +22,8 @@ class Scraper
                     _scrape window.jQuery, data, callback
                 )
 
-get_link_data = ($aa, text_getter=(a) -> a.text) ->
-    ({text: text_getter(a).trim(), url: a.href} for a in $aa.toArray())
+    get_link_data: ($aa, text_getter=(a) -> a.text) ->
+        ({text: text_getter(a).trim(), url: a.href} for a in $aa.toArray())
 
 
 class BBCUSandCanada extends Scraper
@@ -32,8 +32,8 @@ class BBCUSandCanada extends Scraper
         @domain = 'http://www.bbc.co.uk'
         @url = '/news/world/us_and_canada/'
 
-    _scrape: ($, data, callback) ->
-        data['Most popular'] = get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href
+    _scrape: ($, data, callback) =>
+        data['Most popular'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href
         callback()
 
 
@@ -43,12 +43,12 @@ class BuzzFeed extends Scraper
         @domain = 'http://www.buzzfeed.com'
         @url = '/politics'
 
-    _scrape: ($, data, callback) ->
+    _scrape: ($, data, callback) =>
         validate = (url) ->
             (url.indexOf('/usr/homebrew/lib/node/jsdom') == -1) and \
             (url.indexOf('twitter') == -1)
 
-        links = get_link_data $('.bf-widget div div a'), (a) -> a.href
+        links = @get_link_data $('.bf-widget div div a'), (a) -> a.href
         links = (link for link in links when validate link.url)
         data['Most viral in Politics'] = links
         callback()
@@ -60,9 +60,9 @@ class DailyCaller extends Scraper
         @domain = 'http://dailycaller.com'
         @url = '/section/politics/'
 
-    _scrape: ($, data, callback) ->
+    _scrape: ($, data, callback) =>
         for [category, name] in [['most-emailed', 'Most emailed'], ['most-popular', 'Most popular']]
-            data[name] = get_link_data $("#widget-#{category} .category-headline .blue a"), (a) -> a.firstChild.nodeValue
+            data[name] = @get_link_data $("#widget-#{category} .category-headline .blue a"), (a) -> a.firstChild.nodeValue
         callback()
 
 
