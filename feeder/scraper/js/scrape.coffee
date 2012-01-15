@@ -22,8 +22,11 @@ class Scraper
                     _scrape window.jQuery, data, callback
                 )
 
-    get_link_data: ($aa, text_getter=(a) -> a.text) ->
-        ({text: text_getter(a).trim(), url: a.href} for a in $aa.toArray())
+    get_link_data: ($aa, text_getter=(a) -> a.text) =>
+        url_getter = (a) =>
+            if a.href[0] is '/' then @domain + a.href else a.href
+
+        ({text: text_getter(a).trim(), url: url_getter(a)} for a in $aa.toArray())
 
 
 class BBCUSandCanada extends Scraper
