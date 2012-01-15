@@ -18,7 +18,7 @@ class Scraper
                     _scrape window.jQuery, data, callback
                 )
 
-    get_link_data: ($aa, text_getter=(a) -> a.href) =>
+    get_link_data: ($aa, text_getter = (a) -> a.firstChild.nodeValue) =>
         # .text does not seem to be working with jsdom, so sometimes using
         # firstChild.nodeValue instead
         url_getter = (a) =>
@@ -34,7 +34,7 @@ class TheAtlantic extends Scraper
         @url = '/politics/'
 
     _scrape: ($, data, callback) =>
-        data['Most Popular'] = @get_link_data $('#mostPopular a'), (a) -> a.firstChild.nodeValue
+        data['Most Popular'] = @get_link_data $('#mostPopular a')
         callback()
 
 
@@ -45,7 +45,7 @@ class BBCUSandCanada extends Scraper
         @url = '/news/world/us_and_canada/'
 
     _scrape: ($, data, callback) =>
-        data['Most popular (need to get article titles)'] = @get_link_data $('#most-popular-category div li a')[0..1]
+        data['Most popular (need to get article titles)'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href
         callback()
 
 
@@ -60,7 +60,7 @@ class BuzzFeed extends Scraper
             (url.indexOf('/usr/homebrew/lib/node/jsdom') == -1) and \
             (url.indexOf('twitter') == -1)
 
-        links = @get_link_data $('.bf-widget div div a')
+        links = @get_link_data $('.bf-widget div div a'), (a) -> a.href
         links = (link for link in links when validate link.url)
         data['Most viral in Politics'] = links
         callback()
@@ -74,7 +74,7 @@ class DailyCaller extends Scraper
 
     _scrape: ($, data, callback) =>
         for [category, name] in [['most-emailed', 'Most emailed'], ['most-popular', 'Most popular']]
-            data[name] = @get_link_data $("#widget-#{category} .category-headline .blue a"), (a) -> a.firstChild.nodeValue
+            data[name] = @get_link_data $("#widget-#{category} .category-headline .blue a")
         callback()
 
 
@@ -85,7 +85,7 @@ class FoxNews extends Scraper
         @url = '/politics'
 
     _scrape: ($, data, callback) =>
-        data['Trending in Politics'] = @get_link_data $('.trending-descending li a'), (a) -> a.firstChild.nodeValue
+        data['Trending in Politics'] = @get_link_data $('.trending-descending li a')
         callback()
 
 
@@ -96,7 +96,7 @@ class HuffingtonPost extends Scraper
         @url = '/news/mostpopular'
 
     _scrape: ($, data, callback) =>
-        links = @get_link_data $('.snp_most_popular a'), (a) -> a.firstChild.nodeValue
+        links = @get_link_data $('.snp_most_popular a')
         links = (link for link in links when link.text)
         data['Most Popular'] = links
         callback()
@@ -110,7 +110,7 @@ class NewYorkTimes extends Scraper
 
     _scrape: ($, data, callback) =>
         for [category, name] in [['mostBlogged', 'Most Blogged'], ['mostEmailed', 'Most Emailed'], ['mostViewed', 'Most Viewed']]
-            data[name] = @get_link_data $("##{category} li a"), (a) -> a.firstChild.nodeValue
+            data[name] = @get_link_data $("##{category} li a")
         callback()
 
 
@@ -122,7 +122,7 @@ class Politico extends Scraper
 
     _scrape: ($, data, callback) =>
         for [category, name] in [['MostRead', 'Most Read'], ['MostEmailed', 'Most Emailed'], ['MostCommented', 'Most Commented']]
-            data[name] = @get_link_data $("#popular#{category} ol li a"), (a) -> a.firstChild.nodeValue
+            data[name] = @get_link_data $("#popular#{category} ol li a")
         callback()
 
 
@@ -137,7 +137,7 @@ class WashingtonPost extends Scraper
         # TODO: Should check that [0] corresponds to 'Most Popular',
         # and not 'Top Videos' or 'Top Galleries'
         $aa = $(el).parent().next().find('a')
-        data['Most Popular'] = @get_link_data $aa, (a) -> a.firstChild.nodeValue
+        data['Most Popular'] = @get_link_data $aa
         callback()
 
 
@@ -149,7 +149,7 @@ class WSJ extends Scraper
 
     _scrape: ($, data, callback) =>
         for [category, name] in [['mostRead', 'Most Read'], ['mostEmailed', 'Most Emailed'], ['mostCommented', 'Most Commented']]
-            data[name] = @get_link_data $("#mostPopularTab_panel_#{category} ul li a"), (a) -> a.firstChild.nodeValue
+            data[name] = @get_link_data $("#mostPopularTab_panel_#{category} ul li a")
         callback()
 
 
@@ -160,7 +160,7 @@ class WSJWashwire extends Scraper
         @url = '/washwire/'
 
     _scrape: ($, data, callback) =>
-        data['All (more work needed to disect them)'] = @get_link_data $('.mostPopular a')
+        data['All (more work needed to disect them)'] = @get_link_data $('.mostPopular a'), (a) -> a.href
         callback()
 
 
