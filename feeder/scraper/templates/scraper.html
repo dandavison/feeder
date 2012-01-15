@@ -5,9 +5,15 @@
     <h1> {{ name }} </h1>
     {% for category, links in site_data.items %}
     <h2> {{ category }} </h2>
-    {% for link in links %}
-    <a href={{ link.url }}>{{ link.text }}</a>&nbsp;&nbsp;&nbsp;&nbsp;
-    {% endfor %}
+    <table>
+      <tbody>
+        {% for link in links %}
+        <tr>
+	  <td><a href={{ link.url }}>{{ link.text }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     {% endfor %}
     {% endfor %}
   </body>
