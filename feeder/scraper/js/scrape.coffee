@@ -164,6 +164,19 @@ class WSJWashwire extends Scraper
         callback()
 
 
+class TheWeek extends Scraper
+    constructor: ->
+        @name = 'The Week'
+        @domain = 'http://theweek.com'
+        @url = '/'
+
+    _scrape: ($, data, callback) =>
+        for [category, name] in [['mostRead', 'Most Read'], ['mostEmailed', 'Most Emailed']]
+            # TODO: Why doesn't firstChild.nodeValue work?
+            data[name] = @get_link_data $("##{category} a"), (a) -> a.href
+        callback()
+
+
 SCRAPER_CLASSES = [
     TheAtlantic,
     BBCUSandCanada,
@@ -176,6 +189,7 @@ SCRAPER_CLASSES = [
     WashingtonPost,
     WSJ,
 #    WSJWashwire,
+    TheWeek,
 ]
 
 
