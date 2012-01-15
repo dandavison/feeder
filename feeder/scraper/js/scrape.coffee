@@ -104,10 +104,10 @@ class HuffingtonPost extends Scraper
     constructor: ->
         @name = 'Huffington Post'
         @domain = 'http://www.huffingtonpost.com'
-        @url = '/news/mostpopular'
+        @url = '/'
 
     _scrape: ($, data, callback) =>
-        links = @get_link_data $('.snp_most_popular a')
+        links = @get_link_data $('.snp_most_popular_entry_desc a'), (a) -> a.href.split('/').pop()
         links = (link for link in links when link.text)
         data['Most Popular'] = links
         callback()
