@@ -120,7 +120,7 @@ class NewYorkTimes extends Scraper
         @url = '/pages/national/'
 
     _scrape: ($, data, callback) =>
-        for [category, name] in [['mostBlogged', 'Most Blogged'], ['mostEmailed', 'Most Emailed'], ['mostViewed', 'Most Viewed']]
+        for [category, name] in [['mostEmailed', 'Most Emailed'], ['mostViewed', 'Most Viewed']]
             data[name] = @get_link_data $("##{category} li a")
         callback()
 
