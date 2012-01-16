@@ -15,8 +15,8 @@ def scraper(request):
         }
 
     data = get_scrape_data()
-    data = dict(zip(data.keys(),
-                    map(reshape, data.values())))
+    data = sorted(zip(data.keys(),
+                      map(reshape, data.values())))
 
     return render_to_response(
         'scraper.html',
