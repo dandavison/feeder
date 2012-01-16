@@ -190,6 +190,22 @@ class NewYorkTimes extends Scraper
             callback()
 
 
+class NewYorkTimesFrontPage extends Scraper
+    constructor: ->
+        @name = 'New York Times'
+        @domain = 'http://www.nytimes.com'
+        @url = '/'
+
+    _scrape: ($, data, callback) =>
+        # I think this one fails due to fancy ajax tabs.
+        try
+            data['Most Emailed'] = @get_link_data $('#mostPopContentMostEmailed a'), (a) -> a.href
+        catch e
+            print e
+        finally
+            callback()
+
+
 class NPR extends Scraper
     constructor: ->
         @name = 'NPR'
@@ -409,6 +425,7 @@ SCRAPER_CLASSES = [
     HuffingtonPost,
     TheNation,
     NewYorkTimes,
+#    NewYorkTimesFrontPage, # Defeated by ajax tabs?
     NPR,
     Politico,
     Slate,
