@@ -269,20 +269,6 @@ class WashingtonExaminer extends Scraper
             callback()
 
 
-scrape_washington_post = ($, data, callback) ->
-    try
-        $titles = $('.most-post ul li span .title')
-        $title = $(title for title in $titles.toArray() when $(title).text() is 'Most Popular')
-        # TODO: Should check that [0] corresponds to 'Most Popular',
-        # and not 'Top Videos' or 'Top Galleries'
-        $aa = $title.parent().next().find('a')
-        data['Most Popular'] = @get_link_data $aa
-    catch e
-        print e
-    finally
-        callback()
-
-
 class WashingtonPost extends Scraper
     constructor: ->
         @name = 'Washington Post: Politics'
@@ -290,7 +276,16 @@ class WashingtonPost extends Scraper
         @url = '/politics'
 
     _scrape: ($, data, callback) =>
-        this.call(scrape_washington_post, $, data, callback)
+        # FIXME: duplicated method
+        try
+            $titles = $('.most-post ul li span .title')
+            $title = $(title for title in $titles.toArray() when $(title).text() is 'Most Popular')
+            $aa = $title.parent().next().find('a')
+            data['Most Popular'] = @get_link_data $aa
+        catch e
+            print e
+        finally
+            callback()
 
 
 class WashingtonPostOpinions extends Scraper
@@ -300,7 +295,17 @@ class WashingtonPostOpinions extends Scraper
         @url = '/opinions'
 
     _scrape: ($, data, callback) =>
-        this.call(scrape_washington_post, $, data, callback)
+        # FIXME: duplicated method
+        try
+            $titles = $('.most-post ul li span .title')
+            $title = $(title for title in $titles.toArray() when $(title).text() is 'Most Popular')
+            $aa = $title.parent().next().find('a')
+            data['Most Popular'] = @get_link_data $aa
+        catch e
+            print e
+        finally
+            callback()
+
 
 class Wonkette extends Scraper
     constructor: ->
@@ -410,6 +415,7 @@ SCRAPER_CLASSES = [
     ThinkProgress,
     WashingtonExaminer,
     WashingtonPost,
+    WashingtonPostOpinions,
     Wonkette,
     WSJ,
     WSJWashwire, # broken
