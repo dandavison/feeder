@@ -49,7 +49,7 @@ class BBCUSandCanada extends Scraper
 
     _scrape: ($, data, callback) =>
         try
-            data['Most popular (need to get article titles)'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> a.href.split('/').pop()
+            data['Most popular'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> $(a).text()
         catch e
             print e
         finally
@@ -64,7 +64,7 @@ class BBCUSandCanadaArticle extends Scraper
 
     _scrape: ($, data, callback) =>
         try
-            data['Shared & Read (need to disect and get article titles)'] = @get_link_data $('#most-popular div ol li a'), (a) -> a.href.split('/').pop()
+            data['Shared & Read (need to disect and get article titles)'] = @get_link_data $('#most-popular div ol li a'), (a) -> $(a).text()
         catch e
             print e
         finally
