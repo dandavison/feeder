@@ -357,7 +357,8 @@ class Yahoo extends Scraper
 
     _scrape: ($, data, callback) =>
         try
-            data['Most popular'] = @get_link_data $(".most-popular-ul li div a"), (a) -> a.href.split('/').pop()
+            # FIXME: filter condition should be negated
+            data['Most popular'] = @get_link_data $(".most-popular-ul li div a").filter("a:has(img)"), (a) -> a.href.split('/').pop()
         catch e
             print e
         finally
