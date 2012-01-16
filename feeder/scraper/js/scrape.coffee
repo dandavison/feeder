@@ -269,6 +269,20 @@ class WashingtonExaminer extends Scraper
             callback()
 
 
+scrape_washington_post = ($, data, callback) ->
+    try
+        $titles = $('.most-post ul li span .title')
+        $title = $(title for title in $titles.toArray() when $(title).text() is 'Most Popular')
+        # TODO: Should check that [0] corresponds to 'Most Popular',
+        # and not 'Top Videos' or 'Top Galleries'
+        $aa = $title.parent().next().find('a')
+        data['Most Popular'] = @get_link_data $aa
+    catch e
+        print e
+    finally
+        callback()
+
+
 class WashingtonPost extends Scraper
     constructor: ->
         @name = 'Washington Post: Politics'
@@ -276,17 +290,17 @@ class WashingtonPost extends Scraper
         @url = '/politics'
 
     _scrape: ($, data, callback) =>
-        try
-            el = $('.most-post ul li span .title')[0]
-            # TODO: Should check that [0] corresponds to 'Most Popular',
-            # and not 'Top Videos' or 'Top Galleries'
-            $aa = $(el).parent().next().find('a')
-            data['Most Popular'] = @get_link_data $aa
-        catch e
-            print e
-        finally
-            callback()
+        this.call(scrape_washington_post, $, data, callback)
 
+
+class WashingtonPostOpinions extends Scraper
+    constructor: ->
+        @name = 'Washington Post: Opinions'
+        @domain = 'http://www.washingtonpost.com'
+        @url = '/opinions'
+
+    _scrape: ($, data, callback) =>
+        this.call(scrape_washington_post, $, data, callback)
 
 class Wonkette extends Scraper
     constructor: ->
