@@ -324,8 +324,15 @@ class WSJWashwire extends Scraper
         @url = '/washwire/'
 
     _scrape: ($, data, callback) =>
+        text_getter = (a) ->
+            text = a.href
+            if text[text.length - 1] == '/'
+                text = text.slice(0, text.length - 1)
+            text.split('/').pop()
         try
-            data['All (more work needed to disect them)'] = @get_link_data $('.mostPopular a'), (a) -> a.href.split('/').pop()
+            links = @get_link_data $('.mostPopular a'), text_getter
+            links = (link for link in links when link.text.indexOf('index.js') isnt 0)
+            data['All (more work needed to disect them)'] = links
         catch e
             print e
         finally
