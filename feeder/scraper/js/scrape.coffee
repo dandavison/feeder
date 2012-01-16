@@ -333,9 +333,13 @@ class WSJWashwire extends Scraper
                 text = text.slice(0, text.length - 1)
             text.split('/').pop()
         try
-            links = @get_link_data $('.mostPopular a'), text_getter
-            links = (link for link in links when link.text.indexOf('index.js') isnt 0)
-            data['All (more work needed to disect them)'] = links
+            for category in ['Commented', 'Read']
+                # Find the id of the tab with the corresponding title;
+                # the links are in a div whose id is determined by the tab id.
+                $aa = $(".mostPopular .tab a")
+                tab_id = $(a for a in $aa.toArray() when $(a).text() is category).parent().attr("id")
+                panel_id = tab_id.replace('_tab_', '_panel_')
+                data[category] = @get_link_data $("##{panel_id} li a"), (a) -> $(a).text() or text_getter(a)
         catch e
             print e
         finally
