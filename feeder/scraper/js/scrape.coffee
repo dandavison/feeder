@@ -76,7 +76,7 @@ class BBCUSandCanadaArticle extends Scraper
 
 class BuzzFeed extends Scraper
     constructor: ->
-        @name = 'buzzfeed'
+        @name = 'Buzzfeed'
         @domain = 'http://www.buzzfeed.com'
         @url = '/politics'
 
@@ -198,7 +198,7 @@ class NPR extends Scraper
 
     _scrape: ($, data, callback) =>
         try
-            for [category, name] in [['viewed', 'Most Viewed'], ['comm', 'Most Commented (not working?)'], ['mostViewed', 'Most Recommended (not working?)']]
+            for [category, name] in [['viewed', 'Most Viewed'], ['comm', 'Most Commented (not working)'], ['mostViewed', 'Most Recommended (not working)']]
                 data[name] = @get_link_data $("#mostpopular .view#{category} ol li a")
         catch e
             print e
@@ -402,8 +402,8 @@ SCRAPER_CLASSES = [
     TheAtlantic,
     BBCUSandCanadaArticle,
     BBCUSandCanada,
-    BuzzFeed, # broken
-    CNN, # Popular on Facebook requires facebook access
+    BuzzFeed,
+#    CNN, # Popular on Facebook requires facebook access
     DailyCaller,
     FoxNews,
     HuffingtonPost,
@@ -418,7 +418,7 @@ SCRAPER_CLASSES = [
     WashingtonPostOpinions,
     Wonkette,
     WSJ,
-    WSJWashwire, # broken
+    WSJWashwire,
     TheWeek,
     Yahoo,
 ]
@@ -427,12 +427,12 @@ SCRAPER_CLASSES = [
 scrape_all = ->
     data = {}
     count = SCRAPER_CLASSES.length
-    callback = -> if --count is 0 then sys.puts JSON.stringify(data)
 
     for scraper_cls in SCRAPER_CLASSES
         scraper = new scraper_cls
         data[scraper.name] = {}
-        scraper.scrape(data[scraper.name], callback)
+        scraper.scrape(data[scraper.name], ->
+            if --count is 0 then sys.puts JSON.stringify(data))
 
 
 scrape_all()
