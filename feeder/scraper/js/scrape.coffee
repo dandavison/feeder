@@ -64,7 +64,10 @@ class BBCUSandCanadaArticle extends Scraper
 
     _scrape: ($, data, callback) =>
         try
-            data['Shared & Read (need to disect and get article titles)'] = @get_link_data $('#most-popular div ol li a'), (a) -> $(a).text()
+            for category in ['Shared', 'Read']
+                $aa = $("#most-popular .tab a")
+                $aa = $(a for a in $aa.toArray() when $(a).text() is category)
+                data[category] = @get_link_data $aa.parent().next().find('li a'), (a) -> $(a).text()
         catch e
             print e
         finally
