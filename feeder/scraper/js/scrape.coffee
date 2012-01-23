@@ -238,6 +238,22 @@ class NPR extends Scraper
             callback()
 
 
+class PoliticalWire extends Scraper
+    constructor: ->
+        @name = 'Political Wire'
+        @domain = 'http://politicalwire.com'
+        @url = '/'
+
+    _scrape: (data, callback) =>
+        try
+            # Not working; links populated by js on page load
+            data['Most Popular Stories'] = @get_link_data $('#popularthreads a')
+        catch e
+            print e
+        finally
+            callback()
+
+
 class Politico extends Scraper
     constructor: ->
         @name = 'Politico'
