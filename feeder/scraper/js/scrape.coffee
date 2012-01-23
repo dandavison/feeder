@@ -87,7 +87,9 @@ class BuzzFeed extends Scraper
             (url.indexOf('twitter') == -1)
 
         try
-            links = @get_link_data $('.bf-widget div div a'), (a) -> a.href.split('/').pop()
+            # This should really be not('a:has(img)'), then (a) -> $(a).text()
+            # but I'm struggling with inverse selections
+            links = @get_link_data $('.bf-widget div a').filter("a:has(img)"), (a) -> $(a).parent().next().text()
             links = (link for link in links when validate link.url)
             data['Most viral in Politics'] = links
         catch e
