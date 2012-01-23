@@ -20,7 +20,7 @@ class Scraper
                         @_scrape data, callback
                 )
 
-    get_link_data: ($aa, text_getter = (a) -> a.firstChild.nodeValue) =>
+    get_link_data: ($aa, text_getter = (a) -> $(a).text()) =>
         url_getter = (a) =>
             if a.href[0] is '/' then @domain + a.href else a.href
 
@@ -50,7 +50,7 @@ class BBCUSandCanada extends Scraper
 
     _scrape: (data, callback) =>
         try
-            data['Most popular'] = @get_link_data $('#most-popular-category div li a')[0..1], (a) -> $(a).text()
+            data['Most popular'] = @get_link_data $('#most-popular-category div li a')[0..1]
         catch e
             print e
         finally
@@ -68,7 +68,7 @@ class BBCUSandCanadaArticle extends Scraper
             for category in ['Shared', 'Read']
                 $aa = $("#most-popular .tab a")
                 $aa = $(a for a in $aa.toArray() when $(a).text() is category)
-                data[category] = @get_link_data $aa.parent().next().find('li a'), (a) -> $(a).text()
+                data[category] = @get_link_data $aa.parent().next().find('li a')
         catch e
             print e
         finally
