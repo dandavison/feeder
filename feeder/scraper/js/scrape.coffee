@@ -87,9 +87,7 @@ class BuzzFeed extends Scraper
             (url.indexOf('twitter') == -1)
 
         try
-            # This should really be not('a:has(img)'), then (a) -> $(a).text()
-            # but I'm struggling with inverse selections
-            links = @get_link_data $('.bf-widget div a').filter("a:has(img)"), (a) -> $(a).parent().next().text()
+            links = @get_link_data $('.bf-widget div a:has(h2)')
             links = (link for link in links when validate link.url)
             data['Most viral in Politics'] = links
         catch e
@@ -424,8 +422,7 @@ class Yahoo extends Scraper
 
     _scrape: (data, callback) =>
         try
-            # FIXME: filter condition should be negated, can't use .text() like this
-            data['Most popular'] = @get_link_data $(".most-popular-ul li div a").filter("a:has(img)"), (a) -> a.href.split('/').pop()
+            data['Most popular'] = @get_link_data $(".most-popular-ul li div a").filter("a:not(:has(img))")
         catch e
             print e
         finally
