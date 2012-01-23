@@ -262,7 +262,7 @@ class Slate extends Scraper
 
     _scrape: (data, callback) =>
         try
-            links = @get_link_data $('.most_read_and_commented li a'), (a) -> a.href.split('/').pop()
+            links = @get_link_data $('.most_read_and_commented li a')
             links = (link for link in links when link.url isnt 'javascript:void(0)')
             data['Most Read & Most Shared (need to disect them)'] = links
         catch e
@@ -407,7 +407,7 @@ class TheWeek extends Scraper
         try
             for [category, name] in [['mostRead', 'Most Read'], ['mostEmailed', 'Most Emailed']]
                 # TODO: Why doesn't firstChild.nodeValue work?
-                data[name] = @get_link_data $("##{category} a"), (a) -> a.href.split('/').pop()
+                data[name] = @get_link_data $("##{category} a")
         catch e
             print e
         finally
@@ -422,7 +422,7 @@ class Yahoo extends Scraper
 
     _scrape: (data, callback) =>
         try
-            # FIXME: filter condition should be negated
+            # FIXME: filter condition should be negated, can't use .text() like this
             data['Most popular'] = @get_link_data $(".most-popular-ul li div a").filter("a:has(img)"), (a) -> a.href.split('/').pop()
         catch e
             print e
