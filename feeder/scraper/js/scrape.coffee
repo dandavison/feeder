@@ -165,7 +165,7 @@ class HuffingtonPost extends Scraper
 
     _scrape: (data, callback) =>
         try
-            links = @get_link_data $('.snp_most_popular_entry_desc a'), (a) -> a.href.split('/').pop().split('_n_')[0]
+            links = @get_link_data $('.snp_most_popular_entry_desc a')
             links = (link for link in links when link.text and link.url.indexOf('javascript') isnt 0)
             data['Most Popular'] = links
         catch e
@@ -215,7 +215,7 @@ class NewYorkTimesFrontPage extends Scraper
     _scrape: (data, callback) =>
         # I think this one fails due to fancy ajax tabs.
         try
-            data['Most Emailed'] = @get_link_data $('#mostPopContentMostEmailed a'), (a) -> a.href
+            data['Most Emailed'] = @get_link_data $('#mostPopContentMostEmailed a')
         catch e
             print e
         finally
