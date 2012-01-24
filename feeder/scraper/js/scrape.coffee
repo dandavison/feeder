@@ -3,7 +3,7 @@ jsdom = require 'jsdom'
 sys = require 'sys'
 
 class Scraper
-    scrape: (data, callback) =>
+    scrape: =>
         request uri: @domain + @url, (error, response, body) =>
             if error and response.statusCode != 200
                 console.error 'Error when contacting #{@domain + @url}'
@@ -17,14 +17,22 @@ class Scraper
                         callback()
                     else
                         global.$ = window.jQuery
-                        @_scrape data, callback
+                        @_scrape()
                 )
 
-    get_link_data: ($aa, text_getter = (a) -> $(a).text()) =>
+    get_anchor_text: (a) -> $(a).text()
+
+    _scrape: =>
         url_getter = (a) =>
             if a.href[0] is '/' then @domain + a.href else a.href
-
-        ({text: text_getter(a).trim(), url: url_getter(a)} for a in $aa.toArray())
+        try
+            data[@name] ?= {}
+            for category, $anchors of @get_anchors()
+                data[@name][category] = ({text: @get_anchor_text(a).trim(), url: url_getter(a)} for a in $anchors.toArray())
+        catch e
+            print e
+        finally
+            callback()
 
 
 class TheAtlantic extends Scraper
@@ -33,13 +41,7 @@ class TheAtlantic extends Scraper
         @domain = 'http://www.theatlantic.com'
         @url = '/politics/'
 
-    _scrape: (data, callback) =>
-        try
-            data['Most Popular'] = @get_link_data $('#mostPopular a')
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: -> 'Most popular': $('#mostPopular a')
 
 
 class BBCUSandCanada extends Scraper
@@ -48,13 +50,7 @@ class BBCUSandCanada extends Scraper
         @domain = 'http://www.bbc.co.uk'
         @url = '/news/world/us_and_canada/'
 
-    _scrape: (data, callback) =>
-        try
-            data['Most popular'] = @get_link_data $('#most-popular-category div li a')[0..1]
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: -> 'Most popular': $('#most-popular-category div li a')[0..1]
 
 
 class BBCUSandCanadaArticle extends Scraper
@@ -63,16 +59,13 @@ class BBCUSandCanadaArticle extends Scraper
         @domain = 'http://www.bbc.co.uk'
         @url = '/news/world-us-canada-16549624'
 
-    _scrape: (data, callback) =>
-        try
-            for category in ['Shared', 'Read']
-                $aa = $("#most-popular .tab a")
-                $aa = $(a for a in $aa.toArray() when $(a).text() is category)
-                data[category] = @get_link_data $aa.parent().next().find('li a')
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        anchors = {}
+        for category in ['Shared', 'Read']
+            $aa = $("#most-popular .tab a")
+            $aa = $(a for a in $aa.toArray() when $(a).text() is category)
+            anchors[category] = $aa.parent().next().find('li a')
+        anchors
 
 
 class BuzzFeed extends Scraper
@@ -81,19 +74,11 @@ class BuzzFeed extends Scraper
         @domain = 'http://www.buzzfeed.com'
         @url = '/politics'
 
-    _scrape: (data, callback) =>
-        validate = (url) ->
-            (url.indexOf('/usr/homebrew/lib/node/jsdom') == -1) and \
-            (url.indexOf('twitter') == -1)
-
-        try
-            links = @get_link_data $('.bf-widget div a:has(h2)')
-            links = (link for link in links when validate link.url)
-            data['Most viral in Politics'] = links
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        validate = ->
+            (@.href.indexOf('/usr/homebrew/lib/node/jsdom') == -1) and \
+            (@.href.indexOf('twitter') == -1)
+        'Most viral in Politics': $('.bf-widget div a:has(h2)').filter(validate)
 
 
 class CBS extends Scraper
@@ -102,13 +87,8 @@ class CBS extends Scraper
         @domain = 'http://www.cbsnews.com'
         @url = '/2240-100_162-0.html'
 
-    _scrape: (data, callback) =>
-        try
-            data['Most Popular Stories and Blog Posts'] = @get_link_data $('#mostPopularFullPage ol li a')
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        'Most Popular Stories and Blog Posts': $('#mostPopularFullPage ol li a')
 
 
 class CNN extends Scraper
@@ -117,13 +97,8 @@ class CNN extends Scraper
         @domain = 'http://www.cnn.com'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            data["Popular on Facebook (doesn't work due to facebook auth)"] = @get_link_data $('#pmFacebook li a')
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        "Popular on Facebook (doesn't work due to facebook auth)": $('#pmFacebook li a')
 
 
 class DailyCaller extends Scraper
@@ -132,14 +107,11 @@ class DailyCaller extends Scraper
         @domain = 'http://dailycaller.com'
         @url = '/section/politics/'
 
-    _scrape: (data, callback) =>
-        try
-            for [category, name] in [['most-emailed', 'Most emailed'], ['most-popular', 'Most popular']]
-                data[name] = @get_link_data $("#widget-#{category} .category-headline .blue a")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        anchors = {}
+        for [category, name] in [['most-emailed', 'Most emailed'], ['most-popular', 'Most popular']]
+            anchors[name] = $("#widget-#{category} .category-headline .blue a")
+        anchors
 
 
 class FoxNews extends Scraper
@@ -148,13 +120,8 @@ class FoxNews extends Scraper
         @domain = 'http://www.foxnews.com'
         @url = '/politics'
 
-    _scrape: (data, callback) =>
-        try
-            data['Trending in Politics'] = @get_link_data $('.trending-descending li a')
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        'Trending in Politics': $('.trending-descending li a')
 
 
 class HuffingtonPost extends Scraper
@@ -163,15 +130,8 @@ class HuffingtonPost extends Scraper
         @domain = 'http://www.huffingtonpost.com'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            links = @get_link_data $('.snp_most_popular_entry_desc a')
-            links = (link for link in links when link.text and link.url.indexOf('javascript') isnt 0)
-            data['Most Popular'] = links
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        'Most Popular': $('.snp_most_popular_entry_desc a').not(-> @.href.indexOf('javascript') is 0)
 
 
 class TheNation extends Scraper
@@ -180,14 +140,11 @@ class TheNation extends Scraper
         @domain = 'http://www.thenation.com'
         @url = '/politics'
 
-    _scrape: (data, callback) =>
-        try
-            for [category, name] in [['most-read', 'Most Read'], ['most-commented', 'Most Commented']]
-                data[name] = @get_link_data $("##{category} ul div li a")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        anchors = {}
+        for [category, name] in [['most-read', 'Most Read'], ['most-commented', 'Most Commented']]
+            anchors[name] = $("##{category} ul div li a")
+        anchors
 
 
 class NewYorkTimes extends Scraper
@@ -196,14 +153,11 @@ class NewYorkTimes extends Scraper
         @domain = 'http://www.nytimes.com'
         @url = '/pages/national/'
 
-    _scrape: (data, callback) =>
-        try
-            for [category, name] in [['mostEmailed', 'Most Emailed'], ['mostViewed', 'Most Viewed']]
-                data[name] = @get_link_data $("##{category} li a")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        anchors = {}
+        for [category, name] in [['mostEmailed', 'Most Emailed'], ['mostViewed', 'Most Viewed']]
+            anchors[name] = $("##{category} li a")
+        anchors
 
 
 class NewYorkTimesFrontPage extends Scraper
@@ -212,14 +166,9 @@ class NewYorkTimesFrontPage extends Scraper
         @domain = 'http://www.nytimes.com'
         @url = '/'
 
-    _scrape: (data, callback) =>
+    get_anchors: ->
         # I think this one fails due to fancy ajax tabs.
-        try
-            data['Most Emailed'] = @get_link_data $('#mostPopContentMostEmailed a')
-        catch e
-            print e
-        finally
-            callback()
+        'Most Emailed': $('#mostPopContentMostEmailed a')
 
 
 class NPR extends Scraper
@@ -228,14 +177,11 @@ class NPR extends Scraper
         @domain = 'http://www.npr.org'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            for [category, name] in [['viewed', 'Most Viewed'], ['comm', 'Most Commented (not working)'], ['mostViewed', 'Most Recommended (not working)']]
-                data[name] = @get_link_data $("#mostpopular .view#{category} ol li a")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        anchors = {}
+        for [category, name] in [['viewed', 'Most Viewed'], ['comm', 'Most Commented (not working)'], ['mostViewed', 'Most Recommended (not working)']]
+            anchors[name] = $("#mostpopular .view#{category} ol li a")
+        anchors
 
 
 class PoliticalWire extends Scraper
@@ -244,14 +190,9 @@ class PoliticalWire extends Scraper
         @domain = 'http://politicalwire.com'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            # Not working; links populated by js on page load
-            data['Most Popular Stories'] = @get_link_data $('#popularthreads a')
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        # Not working; links populated by js on page load
+        'Most Popular Stories': $('#popularthreads a')
 
 
 class Politico extends Scraper
@@ -260,14 +201,11 @@ class Politico extends Scraper
         @domain = 'http://www.politico.com'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            for [category, name] in [['MostRead', 'Most Read'], ['MostEmailed', 'Most Emailed'], ['MostCommented', 'Most Commented']]
-                data[name] = @get_link_data $("#popular#{category} ol li a")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        anchors = {}
+        for [category, name] in [['MostRead', 'Most Read'], ['MostEmailed', 'Most Emailed'], ['MostCommented', 'Most Commented']]
+            anchors[name] = $("#popular#{category} ol li a")
+        anchors
 
 
 class Slate extends Scraper
@@ -276,15 +214,8 @@ class Slate extends Scraper
         @domain = 'http://www.slate.com'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            links = @get_link_data $('.most_read_and_commented li a')
-            links = (link for link in links when link.url isnt 'javascript:void(0)')
-            data['Most Read & Most Shared (need to disect them)'] = links
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        'Most Read & Most Shared (need to disect them)': $('.most_read_and_commented li a').filter (a) -> a.href isnt 'javascript:void(0)'
 
 
 class ThinkProgress extends Scraper
@@ -293,13 +224,8 @@ class ThinkProgress extends Scraper
         @domain = 'http://thinkprogress.org'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            data['Facebook & Twitter (need to disect them)'] = @get_link_data $('.popular li a')
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        'Facebook & Twitter (need to disect them)': $('.popular li a')
 
 
 class WashingtonExaminer extends Scraper
@@ -308,13 +234,8 @@ class WashingtonExaminer extends Scraper
         @domain = 'http://washingtonexaminer.com'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            data['Most Popular'] = @get_link_data $(".view-popular div ul li a")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        'Most Popular': $(".view-popular div ul li a")
 
 
 class WashingtonPost extends Scraper
@@ -323,17 +244,11 @@ class WashingtonPost extends Scraper
         @domain = 'http://www.washingtonpost.com'
         @url = '/politics'
 
-    _scrape: (data, callback) =>
+    get_anchors: ->
         # FIXME: duplicated method
-        try
-            $titles = $('.most-post ul li span .title')
-            $title = $(title for title in $titles.toArray() when $(title).text() is 'Most Popular')
-            $aa = $title.parent().next().find('a')
-            data['Most Popular'] = @get_link_data $aa
-        catch e
-            print e
-        finally
-            callback()
+        $titles = $('.most-post ul li span .title')
+        $title = $(title for title in $titles.toArray() when $(title).text() is 'Most Popular')
+        'Most Popular': $title.parent().next().find('a')
 
 
 class WashingtonPostOpinions extends Scraper
@@ -342,17 +257,11 @@ class WashingtonPostOpinions extends Scraper
         @domain = 'http://www.washingtonpost.com'
         @url = '/opinions'
 
-    _scrape: (data, callback) =>
+    get_anchors: ->
         # FIXME: duplicated method
-        try
-            $titles = $('.most-post ul li span .title')
-            $title = $(title for title in $titles.toArray() when $(title).text() is 'Most Popular')
-            $aa = $title.parent().next().find('a')
-            data['Most Popular'] = @get_link_data $aa
-        catch e
-            print e
-        finally
-            callback()
+        $titles = $('.most-post ul li span .title')
+        $title = $(title for title in $titles.toArray() when $(title).text() is 'Most Popular')
+        'Most Popular': $title.parent().next().find('a')
 
 
 class Wonkette extends Scraper
@@ -361,14 +270,11 @@ class Wonkette extends Scraper
         @domain = 'http://wonkette.com'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            for [category, name] in [['most_read_box', 'Most Read'], ['most_commented_box', 'Most Commented']]
-                data[name] = @get_link_data $("##{category} ul li a")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        anchors = {}
+        for [category, name] in [['most_read_box', 'Most Read'], ['most_commented_box', 'Most Commented']]
+            anchors[name] = $("##{category} ul li a")
+        anchors
 
 
 class WSJ extends Scraper
@@ -377,14 +283,11 @@ class WSJ extends Scraper
         @domain = 'http://online.wsj.com'
         @url = '/public/page/news-world-business.html'
 
-    _scrape: (data, callback) =>
-        try
-            for [category, name] in [['mostRead', 'Most Read'], ['mostEmailed', 'Most Emailed'], ['mostCommented', 'Most Commented']]
-                data[name] = @get_link_data $("#mostPopularTab_panel_#{category} ul li a")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        anchors = {}
+        for [category, name] in [['mostRead', 'Most Read'], ['mostEmailed', 'Most Emailed'], ['mostCommented', 'Most Commented']]
+            anchors[name] = $("#mostPopularTab_panel_#{category} ul li a")
+        anchors
 
 
 class WSJWashwire extends Scraper
@@ -393,24 +296,25 @@ class WSJWashwire extends Scraper
         @domain = 'http://blogs.wsj.com'
         @url = '/washwire/'
 
-    _scrape: (data, callback) =>
+    get_anchor_text: (a) ->
         text_getter = (a) ->
             text = a.href
             if text[text.length - 1] == '/'
                 text = text.slice(0, text.length - 1)
             text.split('/').pop()
-        try
-            for category in ['Commented', 'Read']
-                # Find the id of the tab with the corresponding title;
-                # the links are in a div whose id is determined by the tab id.
-                $aa = $(".mostPopular .tab a")
-                tab_id = $(a for a in $aa.toArray() when $(a).text() is category).parent().attr("id")
-                panel_id = tab_id.replace('_tab_', '_panel_')
-                data[category] = @get_link_data $("##{panel_id} li a"), (a) -> $(a).text() or text_getter(a)
-        catch e
-            print e
-        finally
-            callback()
+
+        $(a).text() or text_getter(a)
+
+    get_anchors: ->
+        anchors = {}
+        for category in ['Commented', 'Read']
+            # Find the id of the tab with the corresponding title;
+            # the links are in a div whose id is determined by the tab id.
+            $aa = $(".mostPopular .tab a")
+            tab_id = $(a for a in $aa.toArray() when $(a).text() is category).parent().attr("id")
+            panel_id = tab_id.replace('_tab_', '_panel_')
+            anchors[category] = $("##{panel_id} li a")
+        anchors
 
 
 class TheWeek extends Scraper
@@ -419,15 +323,11 @@ class TheWeek extends Scraper
         @domain = 'http://theweek.com'
         @url = '/'
 
-    _scrape: (data, callback) =>
-        try
-            for [category, name] in [['mostRead', 'Most Read'], ['mostEmailed', 'Most Emailed']]
-                # TODO: Why doesn't firstChild.nodeValue work?
-                data[name] = @get_link_data $("##{category} a")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        anchors = {}
+        for [category, name] in [['mostRead', 'Most Read'], ['mostEmailed', 'Most Emailed']]
+            anchors[name] = $("##{category} a")
+        anchors
 
 
 class Yahoo extends Scraper
@@ -436,13 +336,8 @@ class Yahoo extends Scraper
         @domain = 'http://news.yahoo.com'
         @url = '/most-popular'
 
-    _scrape: (data, callback) =>
-        try
-            data['Most popular'] = @get_link_data $(".most-popular-ul li div a").filter("a:not(:has(img))")
-        catch e
-            print e
-        finally
-            callback()
+    get_anchors: ->
+        'Most popular': $(".most-popular-ul li div a").filter("a:not(:has(img))")
 
 
 SCRAPER_CLASSES = [
@@ -459,6 +354,7 @@ SCRAPER_CLASSES = [
     NewYorkTimes,
 #    NewYorkTimesFrontPage, # Defeated by ajax tabs?
     NPR,
+#    PoliticalWire, # Not working, js-populated links
     Politico,
     Slate,
     ThinkProgress,
@@ -473,15 +369,10 @@ SCRAPER_CLASSES = [
 ]
 
 
-scrape_all = ->
-    data = {}
-    count = SCRAPER_CLASSES.length
+global.data = {}
+global.count = SCRAPER_CLASSES.length
+global.callback = ->
+    if --count is 0 then sys.puts JSON.stringify(data)
 
-    for scraper_cls in SCRAPER_CLASSES
-        scraper = new scraper_cls
-        data[scraper.name] = {}
-        scraper.scrape(data[scraper.name], ->
-            if --count is 0 then sys.puts JSON.stringify(data))
-
-
-scrape_all()
+for scraper_cls in SCRAPER_CLASSES
+    (new scraper_cls).scrape()
