@@ -243,6 +243,16 @@ class Politico extends Scraper
         anchors
 
 
+class RealClearPolitics extends Scraper
+    constructor: ->
+        @name = 'Real Clear Politics'
+        @domain = 'http://realclearpolitics.com'
+        @url = '/'
+
+    get_anchors: ->
+        'Most Read': $('#most-read-box a.most-read')
+
+
 class Slate extends Scraper
     constructor: ->
         @name = 'Slate'
@@ -394,6 +404,7 @@ SCRAPER_CLASSES = [
     NPR,
 #    PoliticalWire, # Not working, js-populated links
     Politico,
+    RealClearPolitics,
     Slate,
     ThinkProgress,
     WashingtonExaminer,
@@ -403,7 +414,7 @@ SCRAPER_CLASSES = [
     WSJ,
     WSJWashwire,
     TheWeek,
-    Yahoo,
+   Yahoo,
 ]
 
 
