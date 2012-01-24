@@ -392,7 +392,7 @@ class Yahoo extends Scraper
         @url = '/most-popular'
 
     get_anchors: ->
-        'Most popular': $(".most-popular-ul li div a").filter("a:not(:has(img))")
+        'Most popular': $(".most-popular-ul li div.txt a:not(a.more)")
 
 
 SCRAPER_CLASSES = [
