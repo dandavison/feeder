@@ -2,6 +2,7 @@ request = require 'request'
 jsdom = require 'jsdom'
 sys = require 'sys'
 
+
 class Scraper
     scrape: =>
         request uri: @domain + @url, (error, response, body) =>
@@ -425,7 +426,7 @@ SCRAPER_CLASSES = [
     WSJ,
     WSJWashwire,
     TheWeek,
-   Yahoo,
+    Yahoo,
 ]
 
 
