@@ -68,6 +68,15 @@ class BBCUSandCanadaArticle extends Scraper
         anchors
 
 
+class TheBlaze extends Scraper
+    constructor: ->
+        @name = 'The Blaze'
+        @domain = 'http://www.theblaze.com'
+        @url = '/'
+
+    get_anchors: -> 'Popular Stories': $('h3:contains(Popular Stories)').parent().find('li a.title')
+
+
 class BuzzFeed extends Scraper
     constructor: ->
         @name = 'Buzzfeed'
@@ -344,6 +353,7 @@ SCRAPER_CLASSES = [
     TheAtlantic,
     BBCUSandCanadaArticle,
     BBCUSandCanada,
+    TheBlaze,
     BuzzFeed,
 #    CNN, # Popular on Facebook requires facebook access
     CBS,
@@ -372,7 +382,7 @@ SCRAPER_CLASSES = [
 global.data = {}
 global.count = SCRAPER_CLASSES.length
 global.callback = ->
-    if --count is 0 then sys.puts JSON.stringify(data)
+    if --count is 0 then sys.puts JSON.stringify(data, null, 2)
 
 for scraper_cls in SCRAPER_CLASSES
     (new scraper_cls).scrape()
