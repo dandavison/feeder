@@ -110,6 +110,19 @@ class CNN extends Scraper
         "Popular on Facebook (doesn't work due to facebook auth)": $('#pmFacebook li a')
 
 
+class CrooksAndLiars extends Scraper
+    constructor: ->
+        @name = 'Crooks and Liars'
+        @domain = 'http://crooksandliars.com'
+        @url = '/'
+
+    get_anchors: ->
+        anchors = {}
+        for category in ['day', 'week']
+            anchors["Top Media: #{category}"] = $("#topmedia-#{category} a:not(:has(img))")
+        anchors
+
+
 class DailyCaller extends Scraper
     constructor: ->
         @name = 'DailyCaller'
@@ -357,6 +370,7 @@ SCRAPER_CLASSES = [
     BuzzFeed,
 #    CNN, # Popular on Facebook requires facebook access
     CBS,
+    CrooksAndLiars,
     DailyCaller,
     FoxNews,
     HuffingtonPost,
