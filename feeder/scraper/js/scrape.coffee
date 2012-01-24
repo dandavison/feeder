@@ -253,6 +253,16 @@ class RealClearPolitics extends Scraper
         'Most Read': $('#most-read-box a.most-read')
 
 
+class RollingStone extends Scraper
+    constructor: ->
+        @name = 'Rolling Stone'
+        @domain = 'http://www.rollingstone.com'
+        @url = '/politics'
+
+    get_anchors: ->
+        'Most Popular': $('h2:contains("Most Popular")').parent().find('div ul.politics li a:not(:has(img))')
+
+
 class Slate extends Scraper
     constructor: ->
         @name = 'Slate'
@@ -405,6 +415,7 @@ SCRAPER_CLASSES = [
 #    PoliticalWire, # Not working, js-populated links
     Politico,
     RealClearPolitics,
+    RollingStone,
     Slate,
     ThinkProgress,
     WashingtonExaminer,
