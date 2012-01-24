@@ -77,6 +77,19 @@ class TheBlaze extends Scraper
     get_anchors: -> 'Popular Stories': $('h3:contains(Popular Stories)').parent().find('li a.title')
 
 
+class BusinessInsider extends Scraper
+    constructor: ->
+        @name = 'Business Insider'
+        @domain = 'http://www.businessinsider.com'
+        @url = '/politics'
+
+    get_anchors: ->
+        anchors = {}
+        for [category, name] in [['1', 'Read'], ['2', 'Commented']]
+            anchors[name] = $('h4:contains("Most Read")').parent().find("#sh-body#{category} ul li p a")
+        anchors
+
+
 class BuzzFeed extends Scraper
     constructor: ->
         @name = 'Buzzfeed'
@@ -367,6 +380,7 @@ SCRAPER_CLASSES = [
     BBCUSandCanadaArticle,
     BBCUSandCanada,
     TheBlaze,
+    BusinessInsider,
     BuzzFeed,
 #    CNN, # Popular on Facebook requires facebook access
     CBS,
