@@ -137,6 +137,16 @@ class CrooksAndLiars extends Scraper
         anchors
 
 
+class DailyBeast extends Scraper
+    constructor: ->
+        @name = 'Daily Beast'
+        @domain = 'http://www.thedailybeast.com'
+        @url = '/newsweek'
+
+    get_anchors: ->
+        'Most Popular': $('header:contains(Most Popular)').next().find('li a')
+
+
 class DailyCaller extends Scraper
     constructor: ->
         @name = 'DailyCaller'
@@ -406,6 +416,7 @@ SCRAPER_CLASSES = [
 #    CNN, # Popular on Facebook requires facebook access
     CBS,
     CrooksAndLiars,
+    DailyBeast,
     DailyCaller,
     FoxNews,
     HuffingtonPost,
