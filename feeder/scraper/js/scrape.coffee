@@ -36,6 +36,15 @@ class Scraper
             callback()
 
 
+class AtlanticWire extends Scraper
+    constructor: ->
+        @name = 'Atlantic Wire'
+        @domain = 'http://www.theatlanticwire.com'
+        @url = '/'
+
+    get_anchors: -> 'Most clicked': $('.most-clicked li a')
+
+
 class TheAtlantic extends Scraper
     constructor: ->
         @name = 'The Atlantic'
@@ -408,6 +417,7 @@ class Yahoo extends Scraper
 
 SCRAPER_CLASSES = [
     TheAtlantic,
+    AtlanticWire,
     BBCUSandCanadaArticle,
     BBCUSandCanada,
     TheBlaze,
