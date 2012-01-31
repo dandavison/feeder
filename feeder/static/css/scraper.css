@@ -1,20 +1,33 @@
 body {
-    font-size: 11px;
-    font-family: sans-serif;
+    margin: 20px;
+    font-family: Verdana, Sans-Serif, Arial, Helvetica;
+    font-size: 12px;
+    color: #242424;
+    line-height: 18px;
+    padding: 0px;
+    width: 800px;
+    background-color: #ffffff;
+    float: left;
 }
 thead {
     font-weight: bold;
 }
 a {
     text-decoration: none;
-    color: forestgreen;
+    font-size: 12px;
+    font-weight: bold;
+    color: #900;
 }
 a:hover {
-    color: darkgreen;
+    color: #ff9900;
 }
-.site-name {
+a:visited {
+    color: #ff9000;
+    font-weight: bold;
+}
+h1 {
     font-size: 21px;
     font-weight: bold;
-    padding-top: 30px;
-    padding-bottom: 10px;
+    padding-top: 35px;
+    padding-bottom: 8px;
 }
