@@ -1,0 +1,20 @@
+body {
+    font-size: 11px;
+    font-family: sans-serif;
+}
+thead {
+    font-weight: bold;
+}
+a {
+    text-decoration: none;
+    color: forestgreen;
+}
+a:hover {
+    color: darkgreen;
+}
+.site-name {
+    font-size: 21px;
+    font-weight: bold;
+    padding-top: 30px;
+    padding-bottom: 10px;
+}

@@ -1,12 +1,15 @@
 <html>
-  <head></head>
+  <head>
+    <link rel='stylesheet' href='/static/css/scraper.css' type='text/css'/>
+  </head>
   <body>
     {% for name, site_data in data %}
-    <h1> {{ name }} </h1>
+    <div class="site-data">
+      <div class="site-name">{{ name }} </div>
     <table>
       <thead>
         {% for column in site_data.columns %}
-        <td> <h3> {{ column }} </h3> </td>
+        <td> {{ column }} </td>
         {% endfor %}
       </thead>
       <tbody>
@@ -19,6 +22,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
     {% endfor %}
   </body>
 </html>
