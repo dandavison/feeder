@@ -8,7 +8,7 @@ class Scraper
         request uri: @domain + @url, (error, response, body) =>
             try
                 if error and response.statusCode != 200
-                    throw new Error "#{response.statusCode} when contacting #{@domain + @url}"
+                    throw new Error response.statusCode
                 jsdom.env
                     html: body
                     scripts: ['http://code.jquery.com/jquery-1.5.min.js'],
@@ -20,7 +20,7 @@ class Scraper
                             global.$ = window.jQuery
                             @_scrape()
             catch e
-                console.error "Error: #{e}"
+                console.error "Error: #{e} when contacting #{@domain + @url}"
             finally
                 callback()
 
