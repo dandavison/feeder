@@ -6,34 +6,33 @@ sys = require 'sys'
 class Scraper
     scrape: =>
         request uri: @domain + @url, (error, response, body) =>
-            if error and response.statusCode != 200
-                console.error 'Error when contacting #{@domain + @url}'
-                return {}
-            jsdom.env(
-                html: body
-                scripts: ['http://code.jquery.com/jquery-1.5.min.js'],
-                (error, window) =>
-                    if error
-                        console.error 'Error loading jquery'
-                        callback()
-                    else
-                        global.$ = window.jQuery
-                        @_scrape()
-                )
+            try
+                if error and response.statusCode != 200
+                    throw new Error "#{response.statusCode} when contacting #{@domain + @url}"
+                jsdom.env(
+                    html: body
+                    scripts: ['http://code.jquery.com/jquery-1.5.min.js'],
+                    (error, window) =>
+                        if error
+                            console.error 'Error loading jquery'
+                            callback()
+                        else
+                            global.$ = window.jQuery
+                            @_scrape()
+                    )
+            catch e
+                console.error "Error: #{e}"
+            finally
+                callback()
 
     get_anchor_text: (a) -> $(a).text()
 
     _scrape: =>
         url_getter = (a) =>
             if a.href[0] is '/' then @domain + a.href else a.href
-        try
-            data[@name] ?= {}
-            for category, $anchors of @get_anchors()
-                data[@name][category] = ({text: @get_anchor_text(a).trim(), url: url_getter(a)} for a in $anchors.toArray())
-        catch e
-            print e
-        finally
-            callback()
+        data[@name] ?= {}
+        for category, $anchors of @get_anchors()
+            data[@name][category] = ({text: @get_anchor_text(a).trim(), url: url_getter(a)} for a in $anchors.toArray())
 
 
 class AtlanticWire extends Scraper
