@@ -9,7 +9,7 @@ class Scraper
             try
                 if error and response.statusCode != 200
                     throw new Error "#{response.statusCode} when contacting #{@domain + @url}"
-                jsdom.env(
+                jsdom.env
                     html: body
                     scripts: ['http://code.jquery.com/jquery-1.5.min.js'],
                     (error, window) =>
@@ -19,7 +19,6 @@ class Scraper
                         else
                             global.$ = window.jQuery
                             @_scrape()
-                    )
             catch e
                 console.error "Error: #{e}"
             finally
@@ -32,7 +31,10 @@ class Scraper
             if a.href[0] is '/' then @domain + a.href else a.href
         data[@name] ?= {}
         for category, $anchors of @get_anchors()
-            data[@name][category] = ({text: @get_anchor_text(a).trim(), url: url_getter(a)} for a in $anchors.toArray())
+            data[@name][category] = for a in $anchors.toArray()
+                {text: @get_anchor_text(a).trim(),
+                url: url_getter(a)}
+
 
 
 class AtlanticWire extends Scraper
