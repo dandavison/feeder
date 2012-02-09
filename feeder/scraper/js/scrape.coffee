@@ -6,35 +6,29 @@ sys = require 'sys'
 class Scraper
     scrape: =>
         request uri: @domain + @url, (error, response, body) =>
-            try
-                if error and response.statusCode != 200
-                    throw new Error response.statusCode
-                jsdom.env
-                    html: body
-                    scripts: ['http://code.jquery.com/jquery-1.5.min.js'],
-                    (error, window) =>
-                        if error
-                            console.error 'Error loading jquery'
-                            callback()
-                        else
-                            global.$ = window.jQuery
-                            @_scrape()
-            catch e
-                console.error "Error: #{e} when contacting #{@domain + @url}"
-            finally
-                callback()
+            data[@name] ?= {}
+            if error and response.statusCode != 200
+                throw "Server returned staus code #{response.statusCode}"
+            jsdom.env
+                html: body
+                scripts: ['http://code.jquery.com/jquery-1.5.min.js'],
+                (error, window) =>
+                    if error
+                        throw 'Error loading jquery'
+                    else
+                        global.$ = window.jQuery
+                        @_scrape()
+                        callback()
 
     get_anchor_text: (a) -> $(a).text()
 
     _scrape: =>
         url_getter = (a) =>
             if a.href[0] is '/' then @domain + a.href else a.href
-        data[@name] ?= {}
         for category, $anchors of @get_anchors()
             data[@name][category] = for a in $anchors.toArray()
                 {text: @get_anchor_text(a).trim(),
                 url: url_getter(a)}
-
 
 
 class AtlanticWire extends Scraper
